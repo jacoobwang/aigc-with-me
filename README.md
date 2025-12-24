@@ -2,15 +2,13 @@
 
 The best directory website template.
 
-官网: [mkdirs.com](https://mkdirs.com)
+Website: [mkdirs.com](https://mkdirs.com)
 
-官网Demo: [https://demo.mkdirs.com/](https://demo.mkdirs.com/)
+Explore the [live demo](https://demo.mkdirs.com)
 
-自部署Demo: [mkdirs-test-main.vercel.app](https://mkdirs-test-main.vercel.app/) 
+Read the [documentation](https://docs.mkdirs.com)
 
-官方文档：[documentation](https://docs.mkdirs.com)
-
-视频相关：[video tutorials](https://www.youtube.com/@MkdirsHQ)
+Watch the [video tutorials](https://www.youtube.com/@MkdirsHQ)
 
 Read the [roadmap](https://github.com/MkdirsHQ/mkdirs-template/issues/10)
 
