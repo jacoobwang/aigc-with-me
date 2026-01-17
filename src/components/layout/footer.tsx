@@ -7,7 +7,6 @@ import Link from "next/link";
 import type * as React from "react";
 import Container from "../container";
 import { Logo } from "../logo";
-import BuiltWithButton from "../shared/built-with-button";
 
 export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
@@ -71,8 +70,6 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 </Link>
               )}
             </div>
-
-            <BuiltWithButton />
           </div>
         </div>
 
