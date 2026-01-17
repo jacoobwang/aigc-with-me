@@ -2,11 +2,11 @@ import type { HeroConfig } from "@/types";
 
 export const heroConfig: HeroConfig = {
   title: {
-    first: "Get Instant ⚡️",
-    second: "Access to the Latest AI Tools",
+    first: "Real-Time ⚡️",
+    second: "Access to Global AI Tools",
   },
   subtitle:
-    "Submit for free and get indexed immediately.",
+    "Submit for free and Promote your AI applications",
   label: {
     text: "Introducing Mkdirs on",
     href: "https://x.com/javayhu",

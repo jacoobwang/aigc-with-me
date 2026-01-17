@@ -10,7 +10,7 @@ export default function HomeHero() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="max-w-5xl flex flex-col items-center text-center gap-8">
-        <Link
+        {/* <Link
           href={heroConfig.label.href}
           target="_blank"
           className={cn(
@@ -21,7 +21,7 @@ export default function HomeHero() {
           <span className="mr-2">🎉</span>
           <span>{heroConfig.label.text}</span>
           <LabelIcon className="size-4" />
-        </Link>
+        </Link> */}
 
         {/* maybe font-sourceSans is better */}
         <h1 className="max-w-5xl font-bold text-balance text-3xl sm:text-4xl md:text-5xl">
