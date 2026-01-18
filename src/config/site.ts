@@ -27,16 +27,16 @@ export const siteConfig: SiteConfig = {
   // logoDark: "/logo-dark.png",
   // please increase the version number when you update the image
   image: `${SITE_URL}/og.png?v=1`,
-  mail: "support@mkdirs.com",
+  mail: "support@aigcwiht.me",
   utm: {
-    source: "mkdirs.com",
+    source: "aigcwith.me",
     medium: "referral",
     campaign: "navigation",
   },
   links: {
     // leave it blank if you don't want to show the link (don't delete)
-    twitter: "https://x.com/MkdirsHQ",
-    github: "https://github.com/MkdirsHQ",
-    youtube: "https://www.youtube.com/@MkdirsHQ",
+    // twitter: "https://x.com/MkdirsHQ",
+    // github: "https://github.com/MkdirsHQ",
+    // youtube: "https://www.youtube.com/@MkdirsHQ",
   },
 };
