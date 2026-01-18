@@ -1,6 +1,4 @@
-import ItemGrid from "@/components/item/item-grid";
 import EmptyGrid from "@/components/shared/empty-grid";
-import CustomPagination from "@/components/shared/pagination";
 import { siteConfig } from "@/config/site";
 import { getItems } from "@/data/item";
 import {
@@ -12,6 +10,7 @@ import { constructMetadata } from "@/lib/metadata";
 import type { SponsorItemListQueryResult } from "@/sanity.types";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { sponsorItemListQuery } from "@/sanity/lib/queries";
+import HomeContentClient from "./home-content-client";
 
 export const metadata = constructMetadata({
   title: "",
@@ -28,7 +27,6 @@ export default async function HomePage({
   const sponsorItems = (await sanityFetch<SponsorItemListQueryResult>({
     query: sponsorItemListQuery,
   })) || [];
-  // console.log("HomePage, sponsorItems", sponsorItems);
   const showSponsor = true;
   const hasSponsorItem = showSponsor && sponsorItems.length > 0;
 
@@ -36,13 +34,13 @@ export default async function HomePage({
     category,
     tag,
     sort,
-    page,
     q: query,
     f: filter,
   } = searchParams as { [key: string]: string };
   const { sortKey, reverse } =
     SORT_FILTER_LIST.find((item) => item.slug === sort) || DEFAULT_SORT;
-  const currentPage = page ? Number(page) : 1;
+
+  // Always load page 1 for initial render
   const { items, totalCount } = await getItems({
     category,
     tag,
@@ -50,11 +48,11 @@ export default async function HomePage({
     reverse,
     query,
     filter,
-    currentPage,
+    currentPage: 1,
     hasSponsorItem,
   });
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-  console.log("HomePage, totalCount", totalCount, ", totalPages", totalPages);
+
+  console.log("HomePage, totalCount", totalCount);
 
   return (
     <div>
@@ -63,13 +61,12 @@ export default async function HomePage({
 
       {/* when items are found */}
       {items && items.length > 0 && (
-        <section className="">
-          <ItemGrid items={items} sponsorItems={sponsorItems} showSponsor={showSponsor} />
-
-          <div className="mt-8 flex items-center justify-center">
-            <CustomPagination routePreix="/" totalPages={totalPages} />
-          </div>
-        </section>
+        <HomeContentClient
+          initialItems={items}
+          sponsorItems={sponsorItems}
+          showSponsor={showSponsor}
+          totalCount={totalCount}
+        />
       )}
     </div>
   );
