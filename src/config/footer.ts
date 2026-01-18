@@ -6,7 +6,6 @@ export const footerConfig: FooterConfig = {
       title: "Product",
       items: [
         { title: "Search", href: "/search" },
-        { title: "Collection", href: "/collection" },
         { title: "Category", href: "/category" },
         { title: "Tag", href: "/tag" },
       ],
@@ -14,8 +13,6 @@ export const footerConfig: FooterConfig = {
     {
       title: "Resources",
       items: [
-        { title: "Blog", href: "/blog" },
-        { title: "Pricing", href: "/pricing" },
         { title: "Submit", href: "/submit" },
         { title: "Studio", href: "/studio", external: true },
       ],
@@ -23,10 +20,8 @@ export const footerConfig: FooterConfig = {
     {
       title: "Pages",
       items: [
-        { title: "Home 2", href: "/home2" },
-        { title: "Home 3", href: "/home3" },
-        { title: "Collection 1", href: "/collection/the-best-google-analytics-alternatives-in-2024" },
-        { title: "Collection 2", href: "/collection/the-best-alternatives-to-semrush-in-2024" },
+        { title: "Blog", href: "/blog" },
+        { title: "Collection", href: "/collection" },
       ],
     },
     {

@@ -1,6 +1,6 @@
 "use client";
 
-import { urlForIcon } from "@/lib/image";
+import { urlForIcon, urlForImage } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import type { ItemInfo } from "@/types";
 import { HashIcon } from "lucide-react";
@@ -18,14 +18,13 @@ type ItemCard2Props = {
  */
 export default function ItemCard2({ item }: ItemCard2Props) {
   const iconProps = item?.icon ? urlForIcon(item.icon) : null;
-  const iconBlurDataURL = item?.icon?.blurDataURL || null;
-  // console.log(`ItemCard2, iconBlurDataURL:${iconBlurDataURL}`);
+  const imageProps = item?.image ? urlForImage(item.image) : null;
   const itemUrlPrefix = "/item";
 
   return (
     <div
       className={cn(
-        "border rounded-lg flex flex-col justify-between p-6",
+        "border rounded-lg flex flex-col justify-between",
         "duration-300 shadow-sm hover:shadow-md transition-shadow",
         item.featured
           ? "border-orange-300 border-spacing-1.5 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-accent/60"
@@ -34,8 +33,22 @@ export default function ItemCard2({ item }: ItemCard2Props) {
     >
       {/* top */}
       <div className="flex flex-col gap-4">
+        {/* preview image - full width */}
+        {imageProps && (
+          <Image
+            src={imageProps.src}
+            alt={item.image?.alt || `Preview image for ${item.name}`}
+            title={item.image?.alt || `Preview image for ${item.name}`}
+            width={imageProps.width}
+            height={imageProps.height}
+            className="w-full h-auto object-cover rounded-t-md"
+            placeholder="blur"
+            blurDataURL={item.image?.blurDataURL}
+          />
+        )}
+
         {/* icon + name */}
-        <div className="flex w-full items-center gap-4">
+        <div className="flex w-full items-center gap-4 px-2">
           {iconProps && (
             <Image
               src={iconProps?.src}
@@ -59,8 +72,18 @@ export default function ItemCard2({ item }: ItemCard2Props) {
           </Link>
         </div>
 
+        {/* min-h-[4.5rem] is used for making sure height of the card is the same */}
+        <Link
+          href={`${itemUrlPrefix}/${item.slug.current}`}
+          className="block cursor-pointer px-2"
+        >
+          <p className="text-sm line-clamp-2 leading-relaxed min-h-[3rem]">
+            {item.description}
+          </p>
+        </Link>
+
         {/* categories */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 px-2">
           {item.categories && item.categories.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
               {item.categories.map((category, index) => (
@@ -80,16 +103,6 @@ export default function ItemCard2({ item }: ItemCard2Props) {
             </div>
           )}
         </div>
-
-        {/* min-h-[4.5rem] is used for making sure height of the card is the same */}
-        <Link
-          href={`${itemUrlPrefix}/${item.slug.current}`}
-          className="block cursor-pointer"
-        >
-          <p className="text-sm line-clamp-3 leading-relaxed min-h-[4.5rem]">
-            {item.description}
-          </p>
-        </Link>
       </div>
 
       {/* bottom */}
