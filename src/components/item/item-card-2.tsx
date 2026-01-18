@@ -106,7 +106,7 @@ export default function ItemCard2({ item }: ItemCard2Props) {
       </div>
 
       {/* bottom */}
-      <div className="mt-4 flex justify-end items-center">
+      <div className="mt-4 mb-2 flex justify-start px-2 items-center">
         {item.tags && item.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 items-center">
             {item.tags.slice(0, 5).map((tag, index) => (
