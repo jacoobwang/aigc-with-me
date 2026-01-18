@@ -27,7 +27,7 @@ export const siteConfig: SiteConfig = {
   // logoDark: "/logo-dark.png",
   // please increase the version number when you update the image
   image: `${SITE_URL}/og.png?v=1`,
-  mail: "support@aigcwiht.me",
+  mail: "support@aigcwith.me",
   utm: {
     source: "aigcwith.me",
     medium: "referral",
