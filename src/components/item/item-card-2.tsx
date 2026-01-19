@@ -24,7 +24,7 @@ export default function ItemCard2({ item }: ItemCard2Props) {
   return (
     <div
       className={cn(
-        "border rounded-lg flex flex-col justify-between",
+        "border rounded-lg flex flex-col justify-between cursor-pointer group",
         "duration-300 shadow-sm hover:shadow-md transition-shadow",
         item.featured
           ? "border-orange-300 border-spacing-1.5 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-accent/60"
@@ -35,16 +35,18 @@ export default function ItemCard2({ item }: ItemCard2Props) {
       <div className="flex flex-col gap-4">
         {/* preview image - full width */}
         {imageProps && (
-          <Image
-            src={imageProps.src}
-            alt={item.image?.alt || `Preview image for ${item.name}`}
-            title={item.image?.alt || `Preview image for ${item.name}`}
-            width={imageProps.width}
-            height={imageProps.height}
-            className="w-full h-auto object-cover rounded-t-md"
-            placeholder="blur"
-            blurDataURL={item.image?.blurDataURL}
-          />
+          <div className="overflow-hidden rounded-t-md">
+            <Image
+              src={imageProps.src}
+              alt={item.image?.alt || `Preview image for ${item.name}`}
+              title={item.image?.alt || `Preview image for ${item.name}`}
+              width={imageProps.width}
+              height={imageProps.height}
+              className="w-full h-auto object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+              placeholder="blur"
+              blurDataURL={item.image?.blurDataURL}
+            />
+          </div>
         )}
 
         {/* icon + name */}
