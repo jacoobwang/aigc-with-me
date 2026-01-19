@@ -52,10 +52,8 @@ export default async function HomePage({
     hasSponsorItem,
   });
 
-  console.log("HomePage, totalCount", totalCount);
-
   return (
-    <div>
+    <div className="w-full relative before:content-[''] before:absolute before:top-0 before:left-[50%] before:translate-x-[-50%] before:w-screen before:h-px before:bg-border py-6">
       {/* when no items are found */}
       {items?.length === 0 && <EmptyGrid />}
 

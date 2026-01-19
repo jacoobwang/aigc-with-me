@@ -10,6 +10,6 @@ export default function Container({
 }) {
   return (
     // max-w-6xl
-    <div className={cn("container", "max-w-7xl", className)}>{children}</div>
+    <div className={cn("container", "max-w-8xl", className)}>{children}</div>
   );
 }
