@@ -6,6 +6,7 @@ import type { ItemInfo } from "@/types";
 import { HashIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { buttonVariants } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
@@ -17,12 +18,22 @@ type ItemCard2Props = {
  * ItemCard2 shows item icon
  */
 export default function ItemCard2({ item }: ItemCard2Props) {
+  const router = useRouter();
   const iconProps = item?.icon ? urlForIcon(item.icon) : null;
   const imageProps = item?.image ? urlForImage(item.image) : null;
   const itemUrlPrefix = "/item";
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent navigation if clicking on a nested link
+    if ((e.target as HTMLElement).closest('a')) {
+      return;
+    }
+    router.push(`${itemUrlPrefix}/${item.slug.current}`);
+  };
+
   return (
     <div
+      onClick={handleCardClick}
       className={cn(
         "border rounded-lg flex flex-col justify-between cursor-pointer group",
         "duration-300 shadow-sm hover:shadow-md transition-shadow",
