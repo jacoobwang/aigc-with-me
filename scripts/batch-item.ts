@@ -5,6 +5,7 @@ import mql from "@microlink/mql";
 import { createClient } from "@sanity/client";
 import { generateObject } from "ai";
 import dotenv from "dotenv";
+import { readFile } from "node:fs/promises";
 import fetch from "node-fetch";
 import { z } from "zod";
 dotenv.config();
@@ -78,6 +79,51 @@ const links = [
   "https://achromatic.dev",
 ];
 
+const readUrlsFromFile = async (filePath: string) => {
+  const content = await readFile(filePath, "utf-8");
+  return content
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+};
+
+const parseImportArgs = async (argv: string[]) => {
+  let filePath: string | undefined;
+  const urls: string[] = [];
+
+  for (let i = 0; i < argv.length; i++) {
+    const token = argv[i];
+    if (token === "--file") {
+      filePath = argv[i + 1];
+      i++;
+      continue;
+    }
+    if (token.startsWith("--")) {
+      continue;
+    }
+    urls.push(token);
+  }
+
+  const fileUrls = filePath ? await readUrlsFromFile(filePath) : [];
+  const merged = [...urls, ...fileUrls].filter(Boolean);
+  return merged.length > 0 ? merged : links;
+};
+
+const findExistingItemId = async (url: string, name: string) => {
+  const slug = slugify(name);
+  const byLink = await client.fetch<{ _id: string } | null>(
+    `*[_type == "item" && link == $link][0]{ _id }`,
+    { link: url },
+  );
+  if (byLink?._id) return byLink._id;
+
+  const bySlug = await client.fetch<{ _id: string } | null>(
+    `*[_type == "item" && slug.current == $slug][0]{ _id }`,
+    { slug },
+  );
+  return bySlug?._id ?? null;
+};
+
 export const removeItems = async () => {
   const data = await client.delete({
     query: "*[_type == 'item']",
@@ -96,6 +142,10 @@ export const fetchItem = async (url: string) => {
   // step 2: fetch item info with AI SDK
   const aisdkData = await fetchItemWithAISdk(url);
   console.log("fetchItem, url:", url, "aisdkData:", aisdkData);
+
+  if (!microlinkData?.image?.url || !aisdkData?.object) {
+    return null;
+  }
 
   // step 3: merge the data
   const mergedData = {
@@ -215,18 +265,50 @@ export const importItems = async () => {
     const categories = await client.fetch<Category[]>(`*[_type == "category"]`);
     const tags = await client.fetch<Tag[]>(`*[_type == "tag"]`);
 
-    for (let i = 0; i < links.length; i++) {
-      const item = await fetchItem(links[i]);
-      console.log("index: ", i, ", url: ", links[i], ", item:", item.name);
+    const urls = await parseImportArgs(process.argv.slice(3));
+    console.log("urls", urls);
+    
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      const item = await fetchItem(url);
+      if (!item) {
+        console.log("index: ", i, ", url: ", url, ", item: null");
+        continue;
+      }
+      console.log("index: ", i, ", url: ", url, ", item:", item.name);
 
       const itemCategories = findCategory(categories, item.categories);
       const itemTags = findTag(tags, item.tags);
+
+      const existingItemId = await findExistingItemId(url, item.name);
+      if (existingItemId) {
+        console.log(
+          "skip existing item, url:",
+          url,
+          ", name:",
+          item.name,
+          ", id:",
+          existingItemId,
+        );
+        continue;
+      }
 
       // Fetch icon and image
       const [iconResponse, imageResponse] = await Promise.all([
         fetch(item.icon),
         fetch(item.image),
       ]);
+      if (!iconResponse.ok || !imageResponse.ok) {
+        console.log(
+          "skip item due to asset fetch failure, url:",
+          url,
+          ", iconStatus:",
+          iconResponse.status,
+          ", imageStatus:",
+          imageResponse.status,
+        );
+        continue;
+      }
       const [iconArrayBuffer, imageArrayBuffer] = await Promise.all([
         iconResponse.arrayBuffer(),
         imageResponse.arrayBuffer(),
@@ -355,13 +437,15 @@ const runOperation = async () => {
       await updateItems();
       break;
     case "fetch":
-      await fetchItem(url);
+      if (url) {
+        await fetchItem(url);
+      }
       break;
     default:
       console.log(`
 Available commands:
 - remove: Remove all items
-- import: Import all items
+- import: Import items, optional: --file <path> and/or <url...>
 - update: Update all items
 - fetch<url>: Fetch item info for the specified url with AI SDK and Microlink and return structured data
       `);
