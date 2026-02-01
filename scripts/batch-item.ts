@@ -109,6 +109,21 @@ const parseImportArgs = async (argv: string[]) => {
   return merged.length > 0 ? merged : links;
 };
 
+const parseJsonImportArgs = (argv: string[]) => {
+  let filePath: string | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    const token = argv[i];
+    if (token === "--file") {
+      filePath = argv[i + 1];
+      i++;
+      continue;
+    }
+    if (token.startsWith("--")) continue;
+    filePath ??= token;
+  }
+  return filePath ?? "demo.json";
+};
+
 const findExistingItemId = async (url: string, name: string) => {
   const slug = slugify(name);
   const byLink = await client.fetch<{ _id: string } | null>(
@@ -402,6 +417,137 @@ const findTag = (tags: Tag[], names: string[]) => {
   return tags.filter((tag: Tag) => names.includes(tag.name));
 };
 
+export const importItemsFromJson = async (filePath: string) => {
+  const schema = z.array(
+    z.object({
+      name: z.string().min(1),
+      link: z.string().url(),
+      description: z.string().min(1),
+      introduction: z.string().optional(),
+      categories: z.array(z.string()).default([]),
+      tags: z.array(z.string()).default([]),
+      image: z.string().url(),
+      icon: z.string().url(),
+    }),
+  );
+
+  try {
+    console.log("importItemsFromJson start, file:", filePath);
+
+    const raw = await readFile(filePath, "utf-8");
+    const parsed = schema.parse(JSON.parse(raw));
+
+    const categories = await client.fetch<Category[]>(`*[_type == "category"]`);
+    const tags = await client.fetch<Tag[]>(`*[_type == "tag"]`);
+
+    const fallbackCategory = categories[0]?._id ? [categories[0]] : [];
+    const fallbackTag = tags[0]?._id ? [tags[0]] : [];
+
+    for (let i = 0; i < parsed.length; i++) {
+      const item = parsed[i];
+
+      const existingItemId = await findExistingItemId(item.link, item.name);
+      if (existingItemId) {
+        console.log(
+          "skip existing item, link:",
+          item.link,
+          ", name:",
+          item.name,
+          ", id:",
+          existingItemId,
+        );
+        continue;
+      }
+
+      const itemCategories = findCategory(categories, item.categories);
+      const itemTags = findTag(tags, item.tags);
+
+      const [iconResponse, imageResponse] = await Promise.all([
+        fetch(item.icon),
+        fetch(item.image),
+      ]);
+      if (!iconResponse.ok || !imageResponse.ok) {
+        console.log(
+          "skip item due to asset fetch failure, link:",
+          item.link,
+          ", iconStatus:",
+          iconResponse.status,
+          ", imageStatus:",
+          imageResponse.status,
+        );
+        continue;
+      }
+
+      const [iconArrayBuffer, imageArrayBuffer] = await Promise.all([
+        iconResponse.arrayBuffer(),
+        imageResponse.arrayBuffer(),
+      ]);
+      const [iconBuffer, imageBuffer] = [
+        Buffer.from(iconArrayBuffer),
+        Buffer.from(imageArrayBuffer),
+      ];
+
+      const [iconAsset, imageAsset] = await Promise.all([
+        client.assets.upload("image", iconBuffer, {
+          filename: `${slugify(item.name)}_logo.png`,
+        }),
+        client.assets.upload("image", imageBuffer, {
+          filename: `${slugify(item.name)}_image.png`,
+        }),
+      ]);
+
+      await client.create({
+        _type: "item",
+        name: item.name,
+        slug: {
+          _type: "slug",
+          current: slugify(item.name),
+        },
+        link: item.link,
+        description: item.description,
+        publishDate: new Date(),
+        pricePlan: "free",
+        freePlanStatus: "approved",
+        introduction: item.introduction ?? "",
+        categories: (itemCategories.length ? itemCategories : fallbackCategory).map(
+          (category, index) => ({
+            _type: "reference",
+            _ref: category._id,
+            _key: index.toString(),
+          }),
+        ),
+        tags: (itemTags.length ? itemTags : fallbackTag).map((tag, index) => ({
+          _type: "reference",
+          _ref: tag._id,
+          _key: index.toString(),
+        })),
+        icon: {
+          _type: "image",
+          asset: {
+            _type: "reference",
+            _ref: iconAsset._id,
+          },
+          alt: `Logo of ${item.name}`,
+        },
+        image: {
+          _type: "image",
+          asset: {
+            _type: "reference",
+            _ref: imageAsset._id,
+          },
+          alt: `Screenshot of ${item.name}`,
+        },
+      });
+
+      console.log("created item:", item.name);
+    }
+
+    console.log("importItemsFromJson success");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const updateItems = async () => {
   const items = await client.fetch(`*[_type == "item"]`);
 
@@ -433,6 +579,9 @@ const runOperation = async () => {
     case "import":
       await importItems();
       break;
+    case "json":
+      await importItemsFromJson(parseJsonImportArgs(process.argv.slice(3)));
+      break;
     case "update":
       await updateItems();
       break;
@@ -446,6 +595,7 @@ const runOperation = async () => {
 Available commands:
 - remove: Remove all items
 - import: Import items, optional: --file <path> and/or <url...>
+- json: Import items from local JSON file, default: demo.json (use --file <path>)
 - update: Update all items
 - fetch<url>: Fetch item info for the specified url with AI SDK and Microlink and return structured data
       `);

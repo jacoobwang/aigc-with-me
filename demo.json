@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Mkdirs",
+    "link": "https://mkdirs.com",
+    "description": "The best directory boilerplate",
+    "introduction": "Mkdirs is a curated directory of boilerplate projects.\n\n## Highlights\n- Ready-to-use project starters\n- Common SaaS features included\n- Fast setup for production deployments\n",
+    "categories": ["NextJS Boilerplates", "Typescript Boilerplates", "React Boilerplates"],
+    "tags": ["NextJS", "Directory", "Tailwind", "React", "TypeScript", "Shadcn", "Resend", "Stripe", "Auth", "Blog"],
+    "image": "https://mkdirs.com/og.png",
+    "icon": "https://s2.googleusercontent.com/s2/favicons?domain=mkdirs.com&sz=128"
+  }
+]
