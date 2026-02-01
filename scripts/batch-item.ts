@@ -440,8 +440,75 @@ export const importItemsFromJson = async (filePath: string) => {
     const categories = await client.fetch<Category[]>(`*[_type == "category"]`);
     const tags = await client.fetch<Tag[]>(`*[_type == "tag"]`);
 
-    const fallbackCategory = categories[0]?._id ? [categories[0]] : [];
-    const fallbackTag = tags[0]?._id ? [tags[0]] : [];
+    const categoryByName = new Map(
+      categories
+        .filter((c) => Boolean(c?.name))
+        .map((c) => [c.name as string, c]),
+    );
+    const tagByName = new Map(
+      tags.filter((t) => Boolean(t?.name)).map((t) => [t.name as string, t]),
+    );
+
+    const ensureCategoriesByName = async (names: string[]) => {
+      const uniqueNames = Array.from(
+        new Set(names.map((n) => n.trim()).filter((n) => n.length > 0)),
+      );
+      const ensured: Category[] = [];
+
+      for (const name of uniqueNames) {
+        const existing = categoryByName.get(name);
+        if (existing) {
+          ensured.push(existing);
+          continue;
+        }
+
+        const created = (await client.createIfNotExists({
+          _id: `category-${slugify(name)}`,
+          _type: "category",
+          name,
+          slug: {
+            _type: "slug",
+            current: slugify(name),
+          },
+          priority: 0,
+        })) as unknown as Category;
+
+        categoryByName.set(name, created);
+        ensured.push(created);
+      }
+
+      return ensured.filter((c) => Boolean(c?._id));
+    };
+
+    const ensureTagsByName = async (names: string[]) => {
+      const uniqueNames = Array.from(
+        new Set(names.map((n) => n.trim()).filter((n) => n.length > 0)),
+      );
+      const ensured: Tag[] = [];
+
+      for (const name of uniqueNames) {
+        const existing = tagByName.get(name);
+        if (existing) {
+          ensured.push(existing);
+          continue;
+        }
+
+        const created = (await client.createIfNotExists({
+          _id: `tag-${slugify(name)}`,
+          _type: "tag",
+          name,
+          slug: {
+            _type: "slug",
+            current: slugify(name),
+          },
+        })) as unknown as Tag;
+
+        tagByName.set(name, created);
+        ensured.push(created);
+      }
+
+      return ensured.filter((t) => Boolean(t?._id));
+    };
 
     for (let i = 0; i < parsed.length; i++) {
       const item = parsed[i];
@@ -459,8 +526,8 @@ export const importItemsFromJson = async (filePath: string) => {
         continue;
       }
 
-      const itemCategories = findCategory(categories, item.categories);
-      const itemTags = findTag(tags, item.tags);
+      const itemCategories = await ensureCategoriesByName(item.categories);
+      const itemTags = item.tags.length ? await ensureTagsByName(item.tags) : [];
 
       const [iconResponse, imageResponse] = await Promise.all([
         fetch(item.icon),
@@ -509,14 +576,12 @@ export const importItemsFromJson = async (filePath: string) => {
         pricePlan: "free",
         freePlanStatus: "approved",
         introduction: item.introduction ?? "",
-        categories: (itemCategories.length ? itemCategories : fallbackCategory).map(
-          (category, index) => ({
-            _type: "reference",
-            _ref: category._id,
-            _key: index.toString(),
-          }),
-        ),
-        tags: (itemTags.length ? itemTags : fallbackTag).map((tag, index) => ({
+        categories: itemCategories.map((category, index) => ({
+          _type: "reference",
+          _ref: category._id,
+          _key: index.toString(),
+        })),
+        tags: itemTags.map((tag, index) => ({
           _type: "reference",
           _ref: tag._id,
           _key: index.toString(),
