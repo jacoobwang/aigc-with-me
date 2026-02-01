@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>采集</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="root">
+      <header class="header">
+        <h1 class="title">采集</h1>
+        <button id="collect" class="primary" type="button">采集当前页</button>
+      </header>
+
+      <section class="section">
+        <div class="row">
+          <button id="copy" class="secondary" type="button" disabled>复制 JSON</button>
+        </div>
+        <textarea id="output" class="output" spellcheck="false" placeholder="点击“采集当前页”后会显示结果" readonly></textarea>
+        <p id="status" class="status"></p>
+      </section>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

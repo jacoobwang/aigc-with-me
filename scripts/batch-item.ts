@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import { readFile } from "node:fs/promises";
 import fetch from "node-fetch";
 import { z } from "zod";
-dotenv.config();
+dotenv.config({ path: process.env.ENV_FILE || ".env" });
 
 // make sure you have set the environment variables in .env file
 const client = createClient({

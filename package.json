@@ -23,6 +23,7 @@
     "item:remove": "tsx scripts/batch-item.ts remove",
     "item:import": "tsx scripts/batch-item.ts import",
     "item:json": "tsx scripts/batch-item.ts json --file demo.json",
+    "item:json:prod": "ENV_FILE=.env.prod tsx scripts/batch-item.ts json --file demo.json",
     "item:update": "tsx scripts/batch-item.ts update",
     "item:fetch": "tsx scripts/batch-item.ts fetch",
     "batch": "tsx scripts/batch-all.ts",

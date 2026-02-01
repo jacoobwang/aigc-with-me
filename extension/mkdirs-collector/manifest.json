@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Mkdirs Collector",
+  "version": "0.1.0",
+  "description": "Collect fields from the current page",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_title": "采集",
+    "default_popup": "popup.html"
+  }
+}
