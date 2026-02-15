@@ -55,7 +55,7 @@ function scrapeCurrentPage() {
       ? imageEl.getAttribute("src") || imageEl.getAttribute("data-src") || imageEl.currentSrc || ""
       : "";
 
-  const categories = Array.from(document.querySelectorAll(".flex.items-center.min-w-0"))
+  const categories = Array.from(document.querySelectorAll("a.flex.items-center.min-w-0"))
     .map((el) => extractText(el))
     .filter((t) => t.length > 0)
     .filter((t, i, arr) => arr.indexOf(t) === i);
