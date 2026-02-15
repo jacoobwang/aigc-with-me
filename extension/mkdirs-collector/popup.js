@@ -4,6 +4,17 @@ async function getActiveTab() {
 }
 
 function scrapeCurrentPage() {
+  function stripUtmSource(rawUrl) {
+    if (!rawUrl) return "";
+    try {
+      const u = new URL(rawUrl, window.location.href);
+      u.searchParams.delete("utm_source");
+      return u.toString();
+    } catch {
+      return rawUrl;
+    }
+  }
+
   function extractText(el) {
     const text = el?.textContent ?? "";
     return text.replace(/\s+/g, " ").trim();
@@ -36,7 +47,7 @@ function scrapeCurrentPage() {
     const t = (a.textContent ?? "").replace(/\s+/g, " ").trim();
     return t === "Visit Website" || t.includes("Visit Website");
   });
-  const link = visitAnchor?.href ?? "";
+  const link = stripUtmSource(visitAnchor?.href ?? "");
 
   const imageEl = document.querySelector("img.object-cover.w-full.rounded-xl");
   const image =
