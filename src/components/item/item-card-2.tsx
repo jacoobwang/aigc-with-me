@@ -99,7 +99,7 @@ export default function ItemCard2({ item }: ItemCard2Props) {
         <div className="flex flex-col gap-2 px-2">
           {item.categories && item.categories.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
-              {item.categories.map((category, index) => (
+              {item.categories.slice(0, 2).map((category, index) => (
                 <a
                   key={category._id}
                   href={`/category/${category.slug.current}`}
