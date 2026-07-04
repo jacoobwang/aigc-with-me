@@ -18,6 +18,27 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG AUTH_GITHUB_ID
+ARG AUTH_GITHUB_SECRET
+ARG AUTH_GOOGLE_ID
+ARG AUTH_GOOGLE_SECRET
+ARG AUTH_SECRET
+ARG AUTH_TRUST_HOST
+ARG DISCORD_WEBHOOK_URL
+ARG NEXTAUTH_SECRET
+ARG NEXTAUTH_URL
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+ARG NEXT_PUBLIC_PLAUSIBLE_SCRIPT
+ARG NEXT_PUBLIC_SANITY_DATASET
+ARG NEXT_PUBLIC_SANITY_PROJECT_ID
+ARG NEXT_PUBLIC_UMAMI_SCRIPT
+ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
+ARG RESEND_API_KEY
+ARG RESEND_EMAIL_ADMIN
+ARG RESEND_EMAIL_FROM
+ARG SANITY_API_TOKEN
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
@@ -31,7 +52,7 @@ RUN npm install -g pnpm \
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -53,8 +74,8 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
