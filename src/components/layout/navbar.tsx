@@ -124,7 +124,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
               </LoginWrapper>
             )}
 
-            {/* <ModeToggle /> */}
+            <ModeToggle />
           </div>
         </Container>
       </header>
@@ -219,7 +219,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
               </LoginWrapper>
             )}
 
-            {/* <ModeToggle /> */}
+            <ModeToggle />
           </div>
         </div>
       </header>

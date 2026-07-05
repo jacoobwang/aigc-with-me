@@ -33,7 +33,7 @@ interface CustomMdeProps {
  */
 const CustomMde = React.forwardRef<HTMLDivElement, CustomMdeProps>(
   ({ value, onChange }, ref) => {
-    const theme = useTheme();
+    const { resolvedTheme } = useTheme();
 
     // https://github.com/RIP21/react-simplemde-editor?tab=readme-ov-file#options
     // useMemo to memoize options so they do not change on each rerender
@@ -72,7 +72,7 @@ const CustomMde = React.forwardRef<HTMLDivElement, CustomMdeProps>(
     }, []);
 
     return (
-      <div ref={ref} data-theme={theme} style={{ maxWidth: "none" }}>
+      <div ref={ref} data-theme={resolvedTheme} style={{ maxWidth: "none" }}>
         <SimpleMdeReact
           options={mdeOptions}
           value={value}
