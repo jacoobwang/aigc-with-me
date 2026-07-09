@@ -13,7 +13,7 @@ function isValidOrigin(requestHeaders: Headers): boolean {
 
   const allowedDomains = [
     process.env.NEXT_PUBLIC_APP_URL,
-    'http://localhost:3000'
+    'http://localhost:3300'
   ].filter(Boolean);
 
   return allowedDomains.some(domain => 

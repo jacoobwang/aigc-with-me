@@ -67,7 +67,7 @@ export function absoluteUrl(path: string) {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ??
-  `http://localhost:${process.env.PORT ?? 3000}`;
+  `http://localhost:${process.env.PORT ?? 3300}`;
 
 export function getBaseUrl(): string {
   return baseUrl;

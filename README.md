@@ -23,7 +23,7 @@
 3. 配置 Railway Variables。至少需要 `.env.prod` 中的非空变量，并额外设置：
 
    ```txt
-   PORT=3000
+   PORT=3300
    AUTH_TRUST_HOST=true
    NEXT_PUBLIC_APP_URL=https://aigcwith.me
    NEXTAUTH_URL=https://aigcwith.me
@@ -56,7 +56,7 @@ https://aigcwith.me
 Railway service 绑定的 custom domain：
 
 ```txt
-aigcwith.me -> port 3000
+aigcwith.me -> port 3300
 ```
 
 Cloudflare DNS 需要以下记录：

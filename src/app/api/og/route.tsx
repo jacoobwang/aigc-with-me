@@ -14,7 +14,7 @@ import { ImageResponse } from "next/og";
  * https://stronglytyped.uk/articles/open-graph-images-nextjs-app-router
  *
  * 3. test url
- * http://localhost:3000/api/og?title=Lifestyle&description=blog+category+of+lifestyle&type=Blog+Category
+ * http://localhost:3300/api/og?title=Lifestyle&description=blog+category+of+lifestyle&type=Blog+Category
  */
 export function GET(req: Request) {
   try {
