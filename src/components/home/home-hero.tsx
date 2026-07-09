@@ -1,7 +1,8 @@
 import { Icons } from "@/components/icons/icons";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { heroConfig } from "@/config/hero";
 import { cn } from "@/lib/utils";
+import { LayersIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import HomeSearchBox from "./home-search-box";
 
@@ -37,6 +38,21 @@ export default function HomeHero() {
 
         <div className="w-full">
           <HomeSearchBox urlPrefix="/" />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link href="/stack-builder">
+              <LayersIcon className="mr-2 h-4 w-4" />
+              Build AI Stack
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/tasks">
+              <SearchIcon className="mr-2 h-4 w-4" />
+              Browse by Task
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
