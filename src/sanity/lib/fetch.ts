@@ -16,7 +16,7 @@ import { draftMode } from "next/headers";
 export async function sanityFetch<QueryResponse>({
   query,
   params = {},
-  perspective = process.env.NODE_ENV === "development" || draftMode().isEnabled
+  perspective = (process.env.NODE_ENV === "development" || draftMode().isEnabled) && token
     ? "previewDrafts"
     : "published",
   disableCache,
@@ -27,7 +27,7 @@ export async function sanityFetch<QueryResponse>({
   disableCache?: boolean;
 }) {
   // console.log('sanityFetch, perspective', perspective, 'query', query);
-  if (perspective === "previewDrafts") {
+  if (perspective === "previewDrafts" && token) {
     return sanityClient.fetch<QueryResponse>(query, params, {
       perspective: "previewDrafts",
       // The token is required to fetch draft content

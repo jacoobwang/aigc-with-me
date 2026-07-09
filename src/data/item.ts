@@ -86,22 +86,27 @@ export async function getItems({
   const itemsPerPage = hasSponsorItem ? ITEMS_PER_PAGE - 1 : ITEMS_PER_PAGE;
   // console.log("getItems, itemsPerPage", itemsPerPage);
 
-  const { countQuery, dataQuery } = buildQuery(
-    collection,
-    category,
-    tag,
-    sortKey,
-    reverse,
-    query,
-    filter,
-    currentPage,
-    itemsPerPage,
-  );
-  const [totalCount, items] = await Promise.all([
-    sanityFetch<number>({ query: countQuery }),
-    sanityFetch<ItemListQueryResult>({ query: dataQuery }),
-  ]);
-  return { items, totalCount };
+  try {
+    const { countQuery, dataQuery } = buildQuery(
+      collection,
+      category,
+      tag,
+      sortKey,
+      reverse,
+      query,
+      filter,
+      currentPage,
+      itemsPerPage,
+    );
+    const [totalCount, items] = await Promise.all([
+      sanityFetch<number>({ query: countQuery }),
+      sanityFetch<ItemListQueryResult>({ query: dataQuery }),
+    ]);
+    return { items, totalCount };
+  } catch (error) {
+    console.error("getItems, error:", error);
+    return { items: [], totalCount: 0 };
+  }
 }
 
 /**

@@ -24,9 +24,13 @@ export default async function HomePage({
 }) {
   console.log("HomePage, searchParams", searchParams);
 
-  const sponsorItems = (await sanityFetch<SponsorItemListQueryResult>({
-    query: sponsorItemListQuery,
-  })) || [];
+  const sponsorItems =
+    (await sanityFetch<SponsorItemListQueryResult>({
+      query: sponsorItemListQuery,
+    }).catch((error) => {
+      console.error("HomePage, sponsor items error:", error);
+      return [];
+    })) || [];
   const showSponsor = true;
   const hasSponsorItem = showSponsor && sponsorItems.length > 0;
 
