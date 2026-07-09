@@ -14,7 +14,6 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { siteConfig } from "@/config/site";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useScroll } from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
@@ -24,7 +23,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import React from "react";
-import { Logo } from "../logo";
+import { BrandWordmark, Logo } from "../logo";
 
 interface NavBarProps {
   scroll?: boolean;
@@ -75,7 +74,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
             <Link href="/" className="flex items-center space-x-2">
               <Logo />
 
-              <span className="text-xl font-bold">{siteConfig.name}</span>
+              <BrandWordmark />
             </Link>
 
             {/* links */}
@@ -155,7 +154,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
                   >
                     <Logo />
 
-                    <span className="text-xl font-bold">{siteConfig.name}</span>
+                    <BrandWordmark />
                   </Link>
 
                   <nav className="flex flex-1 flex-col gap-2 p-2 pt-8 font-medium">
@@ -196,7 +195,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
             >
               <Logo className="size-8" />
 
-              <span className="text-xl font-bold">{siteConfig.name}</span>
+              <BrandWordmark />
             </Link>
           </div>
 

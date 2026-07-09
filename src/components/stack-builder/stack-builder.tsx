@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
@@ -38,6 +38,8 @@ const promptExamples = [
   "我们是营销团队，需要中文友好的内容写作、海报设计和短视频工具，最好能团队协作和商用。",
   "我是学生，想用免费工具做论文资料调研、英文写作和课堂展示，不想一开始就注册太多账号。",
 ];
+
+type PlannerStatus = "idle" | "loading" | "ready" | "error";
 
 function readList(value: string | null, fallback: string[]) {
   return value ? value.split(",").filter(Boolean) : fallback;
@@ -80,8 +82,11 @@ export function StackBuilder() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const resultPrompt = searchParams.get("prompt")?.trim() ?? "";
+  const hasResultPrompt = resultPrompt.length > 0;
+  const promptRef = useRef<HTMLTextAreaElement>(null);
   const [copied, setCopied] = useState(false);
-  const [prompt, setPrompt] = useState(promptExamples[0]);
+  const [prompt, setPrompt] = useState(resultPrompt || "");
   const [summary, setSummary] = useState(
     "Tell us what you want to build or improve. The planner will infer a stack and match tools already in the directory.",
   );
@@ -89,7 +94,9 @@ export function StackBuilder() {
     StackBuilderDatabaseTool[]
   >([]);
   const [error, setError] = useState("");
-  const [isPlanning, setIsPlanning] = useState(false);
+  const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(
+    hasResultPrompt ? "loading" : "idle",
+  );
   const [state, setState] = useState<BuilderState>({
     persona: searchParams.get("persona") || defaultStackBuilderState.persona,
     budget: searchParams.get("budget") || defaultStackBuilderState.budget,
@@ -109,13 +116,14 @@ export function StackBuilder() {
 
   const shareParams = useMemo(() => {
     const params = new URLSearchParams();
+    if (hasResultPrompt) params.set("prompt", resultPrompt);
     params.set("persona", state.persona);
     params.set("budget", state.budget);
     params.set("platforms", state.platforms.join(","));
     params.set("useCases", state.useCases.join(","));
     params.set("preferences", state.preferences.join(","));
     return params;
-  }, [state]);
+  }, [hasResultPrompt, resultPrompt, state]);
 
   const resultGroups = useMemo(() => {
     return stackBuilderCategories
@@ -133,8 +141,57 @@ export function StackBuilder() {
   }, [state]);
 
   useEffect(() => {
+    if (resultPrompt) setPrompt(resultPrompt);
+  }, [resultPrompt]);
+
+  useEffect(() => {
+    if (!hasResultPrompt) {
+      setPlannerStatus("idle");
+      setError("");
+      setDatabaseTools([]);
+      return;
+    }
+
+    let ignore = false;
+
+    async function planFromUrlPrompt() {
+      setError("");
+      setPlannerStatus("loading");
+
+      try {
+        const result = await planStackFromPrompt(resultPrompt);
+
+        if (ignore) return;
+
+        if (result.status === "error") {
+          setError(result.message);
+          setPlannerStatus("error");
+          return;
+        }
+
+        setState(result.data.state);
+        setSummary(result.data.summary);
+        setDatabaseTools(result.data.databaseTools);
+        setPlannerStatus("ready");
+      } catch (error) {
+        if (ignore) return;
+        console.error("planFromUrlPrompt, error:", error);
+        setError("Unable to plan a stack right now. Please try again.");
+        setPlannerStatus("error");
+      }
+    }
+
+    planFromUrlPrompt();
+
+    return () => {
+      ignore = true;
+    };
+  }, [hasResultPrompt, resultPrompt]);
+
+  useEffect(() => {
+    if (!hasResultPrompt || plannerStatus !== "ready") return;
     router.replace(`${pathname}?${shareParams.toString()}`, { scroll: false });
-  }, [pathname, router, shareParams]);
+  }, [hasResultPrompt, pathname, plannerStatus, router, shareParams]);
 
   async function copyShareLink() {
     const url = `${window.location.origin}${pathname}?${shareParams.toString()}`;
@@ -143,93 +200,89 @@ export function StackBuilder() {
     window.setTimeout(() => setCopied(false), 1600);
   }
 
-  async function submitPrompt(nextPrompt = prompt) {
-    const value = nextPrompt.trim();
+  function goToResult(nextPrompt?: string) {
+    const promptValue = nextPrompt ?? promptRef.current?.value ?? prompt;
+    const value = promptValue.trim();
     if (!value) return;
 
     setPrompt(value);
     setError("");
-    setIsPlanning(true);
-
-    try {
-      const result = await planStackFromPrompt(value);
-
-      if (result.status === "error") {
-        setError(result.message);
-        return;
-      }
-
-      setState(result.data.state);
-      setSummary(result.data.summary);
-      setDatabaseTools(result.data.databaseTools);
-    } catch (error) {
-      console.error("submitPrompt, error:", error);
-      setError("Unable to plan a stack right now. Please try again.");
-    } finally {
-      setIsPlanning(false);
-    }
+    const params = new URLSearchParams();
+    params.set("prompt", value);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
-  return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
-      <aside className="h-fit rounded-lg border bg-background p-5">
-        <div className="mb-5 flex items-center gap-2">
-          <SparklesIcon className="h-4 w-4 text-indigo-500" />
-          <h2 className="text-lg font-semibold">Plan With Chat</h2>
-        </div>
+  const isPlanning = plannerStatus === "loading";
 
-        <form
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitPrompt();
+  const chatPanel = (
+    <aside className="h-fit bg-background p-6">
+      <div className="mb-5 flex items-center gap-2">
+        <SparklesIcon className="h-4 w-4 text-indigo-500" />
+        <h2 className="text-lg font-semibold">
+          Build a practical AI tool stack for your work
+        </h2>
+      </div>
+
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          goToResult();
+        }}
+      >
+        <Textarea
+          ref={promptRef}
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              goToResult();
+            }
           }}
-        >
-          <Textarea
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder="Describe your role, budget, platform, workflow, and constraints..."
-            className="min-h-36 resize-none"
-          />
+          placeholder="Describe your role, budget, platform, workflow, and constraints..."
+          className="min-h-52 resize-none text-base leading-relaxed"
+        />
 
-          {error ? (
-            <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-              <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-              {error}
-            </div>
-          ) : null}
-
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">
-              AI will infer the filters, then match directory tools.
-            </p>
-            <Button type="submit" disabled={isPlanning}>
-              {isPlanning ? (
-                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <SendIcon className="mr-2 h-4 w-4" />
-              )}
-              Replan
-            </Button>
+        {error ? (
+          <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            <AlertCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+            {error}
           </div>
-        </form>
+        ) : null}
 
-        <div className="mt-6 space-y-3">
-          <h3 className="text-sm font-semibold">Examples</h3>
-          <div className="space-y-2">
-            {promptExamples.map((example) => (
-              <button
-                key={example}
-                type="button"
-                onClick={() => submitPrompt(example)}
-                className="w-full rounded-md border bg-muted/30 p-3 text-left text-sm leading-relaxed transition-colors hover:bg-muted"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            Press Enter to view results. Use Shift + Enter for a new line.
+          </p>
+          <Button type="submit" disabled={isPlanning}>
+            {isPlanning ? (
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <SendIcon className="mr-2 h-4 w-4" />
+            )}
+            {hasResultPrompt ? "Replan" : "Send"}
+          </Button>
         </div>
+      </form>
 
+      <div className="mt-6 space-y-3">
+        <h3 className="text-sm font-semibold">Examples</h3>
+        <div className="space-y-2">
+          {promptExamples.map((example) => (
+            <button
+              key={example}
+              type="button"
+              onClick={() => goToResult(example)}
+              className="w-full rounded-md border bg-muted/30 p-3 text-left text-sm leading-relaxed transition-colors hover:bg-muted"
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {hasResultPrompt && plannerStatus !== "idle" ? (
         <div className="mt-6 space-y-3 border-t pt-5">
           <h3 className="text-sm font-semibold">Parsed Stack</h3>
           <div className="flex flex-wrap gap-2">
@@ -258,7 +311,35 @@ export function StackBuilder() {
             )}
           </div>
         </div>
-      </aside>
+      ) : null}
+    </aside>
+  );
+
+  if (!hasResultPrompt) {
+    return <div className="mx-auto w-full max-w-4xl">{chatPanel}</div>;
+  }
+
+  if (isPlanning) {
+    return (
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
+        {chatPanel}
+        <section className="flex min-h-72 items-center justify-center rounded-lg border bg-muted/30 p-6">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Loader2Icon className="h-4 w-4 animate-spin text-indigo-500" />
+            Analyzing your request and matching tools...
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (plannerStatus === "error") {
+    return <div className="mx-auto w-full max-w-4xl">{chatPanel}</div>;
+  }
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
+      {chatPanel}
 
       <section className="space-y-6">
         <div className="flex flex-col gap-4 rounded-lg border bg-muted/30 p-5 md:flex-row md:items-center md:justify-between">

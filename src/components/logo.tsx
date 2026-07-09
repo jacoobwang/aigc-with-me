@@ -32,3 +32,16 @@ export function Logo({ className }: { className?: string }) {
     />
   );
 }
+
+export function BrandWordmark({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "font-sans text-xl font-black tracking-[0.08em] text-foreground",
+        className,
+      )}
+    >
+      Aigc with Me
+    </span>
+  );
+}

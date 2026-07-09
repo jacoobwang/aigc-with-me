@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type * as React from "react";
 import Container from "../container";
-import { Logo } from "../logo";
+import { BrandWordmark, Logo } from "../logo";
 
 export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
@@ -17,7 +17,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
             <div className="items-center space-x-2 flex">
               <Logo />
 
-              <span className="text-xl font-bold">{siteConfig.name}</span>
+              <BrandWordmark />
             </div>
 
             <p className="text-muted-foreground text-base p4-4 md:pr-12">
