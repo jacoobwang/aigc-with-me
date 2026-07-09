@@ -1,11 +1,13 @@
 import ItemBreadCrumb from "@/components/item/item-bread-crumb";
 import SponsorItemCard from "@/components/item/item-card-sponsor";
+import { ItemDecisionCard } from "@/components/item/item-decision-card";
 import ItemCustomMdx from "@/components/item/item-custom-mdx";
 import ItemGrid from "@/components/item/item-grid";
 import BackButton from "@/components/shared/back-button";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
+import { getToolDecisionCard } from "@/data/tool-decision";
 import { urlForIcon, urlForImage } from "@/lib/image";
 import { constructMetadata } from "@/lib/metadata";
 import { cn, getItemTargetLinkInWebsite, getLocaleDate } from "@/lib/utils";
@@ -86,6 +88,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
   const sponsorItem = sponsorItems?.length
     ? sponsorItems[Math.floor(Math.random() * sponsorItems.length)]
     : null;
+  const decision = getToolDecisionCard(item);
 
   return (
     <div className="flex flex-col gap-8">
@@ -194,6 +197,10 @@ export default async function ItemPage({ params }: ItemPageProps) {
           <div className="bg-muted/50 rounded-lg p-6 mr-0 lg:mr-8">
             <h2 className="text-lg font-semibold mb-4">Introduction</h2>
             <ItemCustomMdx source={item.introduction} />
+          </div>
+
+          <div className="mt-8 mr-0 lg:mr-8">
+            <ItemDecisionCard decision={decision} />
           </div>
 
           <div className="flex items-center justify-start mt-16">
