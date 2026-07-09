@@ -6,7 +6,7 @@ import { constructMetadata } from "@/lib/metadata";
 export const metadata = constructMetadata({
   title: "AI Stack Builder",
   description:
-    "Build a personal AI tool stack from your role, budget, platform, use case, and preferences.",
+    "Describe your workflow and get an AI-planned tool stack matched with tools from the directory.",
   canonicalUrl: `${siteConfig.url}/stack-builder`,
 });
 
@@ -21,9 +21,9 @@ export default function StackBuilderPage() {
           Build a practical AI tool stack for your work.
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          Choose your identity, budget, platform, tasks, and preferences. The
-          builder returns a focused stack across chat, research, image, video,
-          automation, and coding tools.
+          Describe your role, budget, platform, tasks, and constraints. The
+          builder analyzes your request, infers a focused stack, and matches it
+          with tools already in the directory.
         </p>
       </div>
 
