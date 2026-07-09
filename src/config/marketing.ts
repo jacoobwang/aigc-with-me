@@ -7,6 +7,21 @@ export const marketingConfig: MarketingConfig = {
       href: "/search",
       icon: "search",
     },
+    {
+      title: "Stack Builder",
+      href: "/stack-builder",
+      icon: "stack",
+    },
+    {
+      title: "Tasks",
+      href: "/tasks",
+      icon: "category",
+    },
+    {
+      title: "Compare",
+      href: "/compare",
+      icon: "compare",
+    },
     // {
     //   title: "Collection",
     //   href: "/collection",

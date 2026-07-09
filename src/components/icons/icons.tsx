@@ -2,7 +2,9 @@ import {
   ArrowRightIcon,
   CreditCardIcon,
   FileTextIcon,
+  GitCompareIcon,
   HomeIcon,
+  LayersIcon,
   LayoutDashboardIcon,
   LayoutGridIcon,
   LayoutListIcon,
@@ -35,6 +37,8 @@ export const Icons = {
   // used by name
   arrowRight: ArrowRightIcon,
   search: SearchIcon,
+  stack: LayersIcon,
+  compare: GitCompareIcon,
   collection: LayoutListIcon,
   category: LayoutGridIcon,
   tag: TagsIcon,

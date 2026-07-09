@@ -1,4 +1,6 @@
 import { COLLECTIONS_PER_PAGE, ITEMS_PER_PAGE } from "@/lib/constants";
+import { alternativesPages, comparisonPages } from "@/data/seo-pages";
+import { taskPlans } from "@/data/tasks";
 import type {
   BlogCategoryListQueryForSitemapResult,
   BlogListQueryForSitemapResult,
@@ -41,6 +43,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: "search",
+      lastModified: new Date(),
+    },
+    {
+      url: "stack-builder",
+      lastModified: new Date(),
+    },
+    {
+      url: "tasks",
+      lastModified: new Date(),
+    },
+    {
+      url: "alternatives",
+      lastModified: new Date(),
+    },
+    {
+      url: "compare",
       lastModified: new Date(),
     },
     {
@@ -90,6 +108,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     sitemapList.push({
       url: `${site_url}/${route.url}`,
       lastModified: new Date(route.lastModified).toISOString(),
+    });
+  }
+
+  for (const task of taskPlans) {
+    sitemapList.push({
+      url: `${site_url}/tasks/${task.slug}`,
+      lastModified: new Date().toISOString(),
+    });
+  }
+
+  for (const page of alternativesPages) {
+    sitemapList.push({
+      url: `${site_url}/alternatives/${page.slug}`,
+      lastModified: new Date().toISOString(),
+    });
+  }
+
+  for (const page of comparisonPages) {
+    sitemapList.push({
+      url: `${site_url}/compare/${page.slug}`,
+      lastModified: new Date().toISOString(),
     });
   }
 

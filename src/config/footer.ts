@@ -6,6 +6,8 @@ export const footerConfig: FooterConfig = {
       title: "Product",
       items: [
         { title: "Search", href: "/search" },
+        { title: "AI Stack Builder", href: "/stack-builder" },
+        { title: "Task Navigator", href: "/tasks" },
         { title: "Category", href: "/category" },
         { title: "Tag", href: "/tag" },
       ],
@@ -13,6 +15,8 @@ export const footerConfig: FooterConfig = {
     {
       title: "Resources",
       items: [
+        { title: "Alternatives", href: "/alternatives" },
+        { title: "Comparisons", href: "/compare" },
         { title: "Submit", href: "/submit" },
         { title: "Studio", href: "/studio", external: true },
       ],
