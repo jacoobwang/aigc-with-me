@@ -16,6 +16,10 @@ export default defineType({
       name: "sponsor",
       title: "Sponsor",
     },
+    {
+      name: "import",
+      title: "Import",
+    },
   ],
   fields: [
     defineField({
@@ -53,7 +57,8 @@ export default defineType({
       name: "affiliateLink",
       title: "Affiliate Link",
       type: "string",
-      description: "The affiliate link, not shown on the website, leave it blank if you don't have one",
+      description:
+        "The affiliate link, not shown on the website, leave it blank if you don't have one",
     }),
     defineField({
       name: "description",
@@ -279,10 +284,60 @@ export default defineType({
     defineField({
       name: "forceHidden",
       title: "Force Hidden",
-      description: "If the item is force hidden, it will not be displayed regardless of the status. It's helpful when you want to hide an item temporarily.",
+      description:
+        "If the item is force hidden, it will not be displayed regardless of the status. It's helpful when you want to hide an item temporarily.",
       type: "boolean",
       group: "status",
       initialValue: false,
+    }),
+    defineField({
+      name: "autoImported",
+      title: "Auto Imported",
+      description:
+        "Whether this item was created by the automatic update pipeline.",
+      type: "boolean",
+      group: "import",
+      initialValue: false,
+      readOnly: true,
+    }),
+    defineField({
+      name: "sourceName",
+      title: "Source Name",
+      description: "The configured source that discovered this item.",
+      type: "string",
+      group: "import",
+      readOnly: true,
+    }),
+    defineField({
+      name: "sourceUrl",
+      title: "Source URL",
+      description: "The source directory page where this item was discovered.",
+      type: "url",
+      group: "import",
+      readOnly: true,
+    }),
+    defineField({
+      name: "discoveredAt",
+      title: "Discovered At",
+      type: "datetime",
+      group: "import",
+      readOnly: true,
+    }),
+    defineField({
+      name: "importedAt",
+      title: "Imported At",
+      type: "datetime",
+      group: "import",
+      readOnly: true,
+    }),
+    defineField({
+      name: "importNote",
+      title: "Import Note",
+      description: "Internal note from the automatic update pipeline.",
+      type: "text",
+      rows: 3,
+      group: "import",
+      readOnly: true,
     }),
     // sponsor related fields
     defineField({
@@ -343,10 +398,18 @@ export default defineType({
       proPlanStatus,
       sponsorPlanStatus,
     }) {
-      const error = freePlanStatus === "rejected" || proPlanStatus === "failed" || sponsorPlanStatus === "failed";
+      const error =
+        freePlanStatus === "rejected" ||
+        proPlanStatus === "failed" ||
+        sponsorPlanStatus === "failed";
       const title = date ? `✅ ${name}` : error ? `❌ ${name}` : `⏳ ${name}`;
       const feature = featured ? "⭐" : "";
-      const status = pricePlan.toUpperCase() === PricePlans.FREE.toUpperCase() ? freePlanStatus : pricePlan.toUpperCase() === PricePlans.PRO.toUpperCase() ? proPlanStatus : sponsorPlanStatus;
+      const status =
+        pricePlan.toUpperCase() === PricePlans.FREE.toUpperCase()
+          ? freePlanStatus
+          : pricePlan.toUpperCase() === PricePlans.PRO.toUpperCase()
+            ? proPlanStatus
+            : sponsorPlanStatus;
       const time = date
         ? `date: ${format(parseISO(date), "yyyy/MM/dd")}`
         : "not published";

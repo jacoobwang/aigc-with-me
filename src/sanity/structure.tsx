@@ -89,6 +89,13 @@ export const structure = (
       '_type == "item" && pricePlan == "free" && freePlanStatus == "pending"',
     );
 
+    const autoImportedPendingItems = createFilteredListItem(
+      "Auto Imported Pending",
+      item.name,
+      ClockIcon,
+      '_type == "item" && autoImported == true && pricePlan == "free" && freePlanStatus == "pending"',
+    );
+
     const rejectedSubmissionsInFreePlan = createFilteredListItem(
       "Rejected Submissions In Free Plan",
       item.name,
@@ -348,6 +355,7 @@ export const structure = (
           .child(
             S.list().title("Item management").items([
               allItems,
+              autoImportedPendingItems,
               freePlanItemManagement,
               proPlanItemManagement,
               S.divider(),
