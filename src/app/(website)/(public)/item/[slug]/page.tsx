@@ -268,12 +268,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
                 <ul className="flex flex-wrap gap-4">
                   {item.categories?.map((category) => (
                     <li key={category._id}>
-                      <Link
-                        href={`/category/${category.slug.current}`}
-                        className="text-sm link-underline"
-                      >
+                      <span className="text-sm text-muted-foreground">
                         {category.name}
-                      </Link>
+                      </span>
                     </li>
                   ))}
                 </ul>

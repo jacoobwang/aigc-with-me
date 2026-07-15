@@ -7,7 +7,6 @@
 // import Loading from "@/app/(website)/(protected)/dashboard/loading";
 // import Loading from "@/app/(website)/(protected)/edit/[id]/loading";
 // import Loading from "@/app/(website)/(protected)/settings/loading";
-// import Loading from "@/app/(website)/(public)/category/loading";
 // import Loading from "@/app/(website)/(public)/item/[slug]/loading";
 // import Loading from "@/app/(website)/(public)/blog/(blog)/loading";
 // import Loading from "@/app/(website)/(public)/blog/[slug]/loading";

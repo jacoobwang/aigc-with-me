@@ -63,8 +63,8 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
       {/* Desktop View */}
       <header
         className={cn(
-          "hidden md:flex justify-center bg-background/60 backdrop-blur-xl transition-all",
-          scroll ? (scrolled ? "border-b" : "bg-transparent") : "border-b",
+          "hidden md:flex justify-center bg-[linear-gradient(90deg,rgba(224,242,254,0.72),rgba(255,255,255,0.44)_34%,rgba(236,254,255,0.62)_58%,rgba(255,255,255,0.44))] backdrop-blur-xl transition-all dark:bg-[linear-gradient(90deg,rgba(15,23,42,0.92),rgba(2,6,23,0.74)_42%,rgba(8,47,73,0.42)_64%,rgba(2,6,23,0.74))]",
+          scroll ? (scrolled ? "border-b" : "") : "border-b",
         )}
       >
         <Container className="flex h-16 items-center justify-between">
@@ -129,7 +129,7 @@ export function Navbar({ scroll = false, config }: NavBarProps) {
       </header>
 
       {/* Mobile View */}
-      <header className="md:hidden flex justify-center bg-background/60 backdrop-blur-xl transition-all">
+      <header className="md:hidden flex justify-center bg-[linear-gradient(90deg,rgba(224,242,254,0.72),rgba(255,255,255,0.44)_48%,rgba(236,254,255,0.62))] backdrop-blur-xl transition-all dark:bg-[linear-gradient(90deg,rgba(15,23,42,0.92),rgba(2,6,23,0.74)_48%,rgba(8,47,73,0.42))]">
         <div className="w-full px-4 h-16 flex items-center justify-between">
           {/* mobile navbar left show menu icon when closed & show sheet when menu is open */}
           <div className="flex items-center gap-x-4">

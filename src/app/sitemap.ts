@@ -1,10 +1,9 @@
 import { COLLECTIONS_PER_PAGE, ITEMS_PER_PAGE } from "@/lib/constants";
-import { alternativesPages, comparisonPages } from "@/data/seo-pages";
+import { alternativesPages } from "@/data/seo-pages";
 import { taskPlans } from "@/data/tasks";
 import type {
   BlogCategoryListQueryForSitemapResult,
   BlogListQueryForSitemapResult,
-  CategoryListQueryForSitemapResult,
   CollectionListQueryForSitemapResult,
   ItemListQueryForSitemapResult,
   PageListQueryForSitemapResult,
@@ -14,7 +13,6 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   blogCategoryListQueryForSitemap,
   blogListQueryForSitemap,
-  categoryListQueryForSitemap,
   collectionListQueryForSitemap,
   itemListQueryForSitemap,
   pageListQueryForSitemap,
@@ -55,14 +53,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: "alternatives",
-      lastModified: new Date(),
-    },
-    {
-      url: "compare",
-      lastModified: new Date(),
-    },
-    {
-      url: "category",
       lastModified: new Date(),
     },
     {
@@ -125,16 +115,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  for (const page of comparisonPages) {
-    sitemapList.push({
-      url: `${site_url}/compare/${page.slug}`,
-      lastModified: new Date().toISOString(),
-    });
-  }
-
   const [
     itemListQueryResult,
-    categoryListQueryResult,
     tagListQueryResult,
     collectionListQueryResult,
     blogListQueryResult,
@@ -143,9 +125,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ] = await Promise.all([
     sanityFetch<ItemListQueryForSitemapResult>({
       query: itemListQueryForSitemap,
-    }),
-    sanityFetch<CategoryListQueryForSitemapResult>({
-      query: categoryListQueryForSitemap,
     }),
     sanityFetch<TagListQueryForSitemapResult>({
       query: tagListQueryForSitemap,
@@ -165,10 +144,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   console.log("sitemap, itemListQueryResult size:", itemListQueryResult.length);
-  console.log(
-    "sitemap, categoryListQueryResult size:",
-    categoryListQueryResult.length,
-  );
   console.log("sitemap, tagListQueryResult size:", tagListQueryResult.length);
   console.log("sitemap, blogListQueryResult size:", blogListQueryResult.length);
   console.log(
@@ -198,29 +173,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${site_url}${routeUrl}`,
       lastModified: new Date().toISOString(),
     });
-  }
-
-  for (const category of categoryListQueryResult) {
-    if (category.slug) {
-      const routeUrl = `/category/${category.slug}`;
-      // console.log(`sitemap, url:${site_url}${routeUrl}`);
-      sitemapList.push({
-        url: `${site_url}${routeUrl}`,
-        lastModified: new Date(category._updatedAt).toISOString(),
-      });
-
-      const pageCount = Math.ceil(category.count / ITEMS_PER_PAGE);
-      console.log(`sitemap, category:${category.slug}, count:${category.count}, pageCount:${pageCount}`);
-      for (let i = 2; i <= pageCount; i++) {
-        const routeUrl = `/category/${category.slug}?page=${i}`;
-        sitemapList.push({
-          url: `${site_url}${routeUrl}`,
-          lastModified: new Date(category._updatedAt).toISOString(),
-        });
-      }
-    } else {
-      console.warn(`sitemap, category slug invalid, id:${category._id}`);
-    }
   }
 
   for (const tag of tagListQueryResult) {

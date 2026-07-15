@@ -27,7 +27,7 @@ export default function HomeHero() {
         {/* maybe font-sourceSans is better */}
         <h1 className="max-w-5xl font-bold text-balance text-3xl sm:text-4xl md:text-5xl">
           {heroConfig.title.first}{" "}
-          <span className="text-gradient_indigo-purple font-bold">
+          <span className="font-bold text-black dark:text-foreground">
             {heroConfig.title.second}
           </span>
         </h1>

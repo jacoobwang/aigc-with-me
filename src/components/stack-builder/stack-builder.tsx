@@ -34,9 +34,9 @@ import { Textarea } from "../ui/textarea";
 type BuilderState = typeof defaultStackBuilderState;
 
 const promptExamples = [
-  "我是独立开发者，想做一个 SaaS，从调研、写代码到自动化发布都想用 AI，预算每月 20 美元左右。",
-  "我们是营销团队，需要中文友好的内容写作、海报设计和短视频工具，最好能团队协作和商用。",
-  "我是学生，想用免费工具做论文资料调研、英文写作和课堂展示，不想一开始就注册太多账号。",
+  "I am an independent developer building a SaaS. I want AI help for research, coding, and automated launches, with a budget of around $20/month.",
+  "We are a marketing team looking for Chinese-friendly content writing, poster design, and short video tools, ideally with team collaboration and commercial use.",
+  "I am a student looking for free tools for paper research, English writing, and class presentations, without signing up for too many accounts at the start.",
 ];
 
 type PlannerStatus = "idle" | "loading" | "ready" | "error";

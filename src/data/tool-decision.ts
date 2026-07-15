@@ -31,7 +31,6 @@ const decisionOverrides: Record<string, Partial<ToolDecisionCard>> = {
       { name: "Perplexity", href: "/search?q=Perplexity" },
     ],
     comparisons: [
-      { label: "Perplexity vs ChatGPT Search", href: "/compare/perplexity-vs-chatgpt-search" },
       { label: "Best ChatGPT Alternatives", href: "/alternatives/chatgpt" },
     ],
   },
@@ -58,7 +57,8 @@ const decisionOverrides: Record<string, Partial<ToolDecisionCard>> = {
       { name: "Genspark", href: "/search?q=Genspark" },
     ],
     comparisons: [
-      { label: "Perplexity vs ChatGPT Search", href: "/compare/perplexity-vs-chatgpt-search" },
+      { label: "Search Perplexity", href: "/search?q=Perplexity" },
+      { label: "Search ChatGPT Search", href: "/search?q=ChatGPT%20Search" },
     ],
   },
   midjourney: {
@@ -107,7 +107,10 @@ const decisionOverrides: Record<string, Partial<ToolDecisionCard>> = {
       { name: "Windsurf", href: "/search?q=Windsurf" },
       { name: "GitHub Copilot", href: "/search?q=GitHub%20Copilot" },
     ],
-    comparisons: [{ label: "Cursor vs Windsurf", href: "/compare/cursor-vs-windsurf" }],
+    comparisons: [
+      { label: "Search Cursor", href: "/search?q=Cursor" },
+      { label: "Search Windsurf", href: "/search?q=Windsurf" },
+    ],
   },
   windsurf: {
     verdict:
@@ -119,7 +122,10 @@ const decisionOverrides: Record<string, Partial<ToolDecisionCard>> = {
       { name: "Cursor", href: "/search?q=Cursor" },
       { name: "GitHub Copilot", href: "/search?q=GitHub%20Copilot" },
     ],
-    comparisons: [{ label: "Cursor vs Windsurf", href: "/compare/cursor-vs-windsurf" }],
+    comparisons: [
+      { label: "Search Cursor", href: "/search?q=Cursor" },
+      { label: "Search Windsurf", href: "/search?q=Windsurf" },
+    ],
   },
   zapier: {
     verdict:

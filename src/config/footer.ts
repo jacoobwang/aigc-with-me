@@ -8,7 +8,6 @@ export const footerConfig: FooterConfig = {
         { title: "Search", href: "/search" },
         { title: "AI Stack Builder", href: "/stack-builder" },
         { title: "Task Navigator", href: "/tasks" },
-        { title: "Category", href: "/category" },
         { title: "Tag", href: "/tag" },
       ],
     },
@@ -16,7 +15,6 @@ export const footerConfig: FooterConfig = {
       title: "Resources",
       items: [
         { title: "Alternatives", href: "/alternatives" },
-        { title: "Comparisons", href: "/compare" },
         { title: "Submit", href: "/submit" },
         { title: "Studio", href: "/studio", external: true },
       ],
@@ -31,9 +29,6 @@ export const footerConfig: FooterConfig = {
     {
       title: "Company",
       items: [
-        { title: "About Us", href: "/about" },
-        { title: "Privacy Policy", href: "/privacy" },
-        { title: "Terms of Service", href: "/terms" },
         { title: "Sitemap", href: "/sitemap.xml" },
       ],
     },

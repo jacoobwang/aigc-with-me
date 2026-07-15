@@ -3,35 +3,25 @@ import type { MarketingConfig } from "@/types";
 export const marketingConfig: MarketingConfig = {
   menus: [
     {
-      title: "Search",
+      title: "🔍 Search",
       href: "/search",
       icon: "search",
     },
     {
-      title: "Stack Builder",
+      title: "🧰 Stack Builder",
       href: "/stack-builder",
       icon: "stack",
     },
     {
-      title: "Tasks",
+      title: "✅ Tasks",
       href: "/tasks",
       icon: "category",
-    },
-    {
-      title: "Compare",
-      href: "/compare",
-      icon: "compare",
     },
     // {
     //   title: "Collection",
     //   href: "/collection",
     //   icon: "collection",
     // },
-    {
-      title: "Category",
-      href: "/category",
-      icon: "category",
-    },
     // {
     //   title: "Blog",
     //   href: "/blog",
@@ -43,7 +33,7 @@ export const marketingConfig: MarketingConfig = {
     //   icon: "pricing",
     // },
     {
-      title: "Submit",
+      title: "🚀 Submit",
       href: "/submit",
       icon: "submit",
     },

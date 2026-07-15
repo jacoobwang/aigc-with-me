@@ -40,7 +40,7 @@ export default async function HomeHeroSponsor() {
         {/* maybe font-sourceSans is better */}
         <h1 className="font-bold text-balance text-2xl sm:text-3xl md:text-4xl">
           {heroConfig.title.first}{" "}
-          <span className="text-gradient_indigo-purple font-bold">
+          <span className="font-bold text-black dark:text-foreground">
             {heroConfig.title.second}
           </span>
         </h1>

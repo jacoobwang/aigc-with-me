@@ -99,19 +99,18 @@ export default function ItemCard2({ item }: ItemCard2Props) {
         <div className="flex flex-col gap-2 px-2">
           {item.categories && item.categories.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
-              {item.categories.slice(0, 2).map((category, index) => (
-                <a
+              {item.categories.slice(0, 2).map((category) => (
+                <span
                   key={category._id}
-                  href={`/category/${category.slug.current}`}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
-                    "px-2 py-1 h-6 rounded-md",
+                    "px-2 py-1 h-6 rounded-md cursor-default",
                   )}
                 >
                   <span className="text-sm text-muted-foreground">
                     {category.name}
                   </span>
-                </a>
+                </span>
               ))}
             </div>
           )}

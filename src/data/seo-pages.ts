@@ -20,16 +20,6 @@ export type AlternativesPage = {
   tools: ToolOption[];
 };
 
-export type ComparisonPage = {
-  slug: string;
-  title: string;
-  description: string;
-  summary: string;
-  left: ToolOption;
-  right: ToolOption;
-  choices: RecommendationChoice[];
-};
-
 export const alternativesPages: AlternativesPage[] = [
   {
     slug: "chatgpt",
@@ -93,65 +83,6 @@ export const alternativesPages: AlternativesPage[] = [
   },
 ];
 
-export const comparisonPages: ComparisonPage[] = [
-  {
-    slug: "cursor-vs-windsurf",
-    title: "Cursor vs Windsurf",
-    description:
-      "Compare Cursor and Windsurf for AI coding, codebase context, agent workflow, teams, and pricing.",
-    summary:
-      "Both tools target AI-native coding. Cursor is a strong default for codebase-aware implementation and review; Windsurf is worth testing when you prefer a more agent-centered editor workflow.",
-    left: {
-      name: "Cursor",
-      bestFor: "Developers who want a mature AI code editor with strong codebase context.",
-      tradeoff: "Requires adopting Cursor as an editor for the best experience.",
-      href: "/search?q=Cursor",
-    },
-    right: {
-      name: "Windsurf",
-      bestFor: "Developers who want agentic coding flows and multi-file sessions inside the editor.",
-      tradeoff: "Team fit depends on whether the workflow matches your coding style.",
-      href: "/search?q=Windsurf",
-    },
-    choices: [
-      { label: "If you value Chinese", pick: "Test both", reason: "Coding UX depends more on repo context and prompt style than language alone." },
-      { label: "If you value price", pick: "Start with free tiers", reason: "Use the same small repo task to compare output quality before paying." },
-      { label: "If you are a team", pick: "Cursor", reason: "It is often easier to standardize around the more widely adopted workflow." },
-      { label: "If you need API", pick: "Neither as primary API", reason: "Use model APIs directly for product features; use editors for development." },
-    ],
-  },
-  {
-    slug: "perplexity-vs-chatgpt-search",
-    title: "Perplexity vs ChatGPT Search",
-    description:
-      "Compare Perplexity and ChatGPT Search for source-backed research, writing workflows, teams, and API needs.",
-    summary:
-      "Perplexity is usually the better research-first answer engine. ChatGPT Search is better when search is one step inside a broader writing, coding, or multimodal assistant workflow.",
-    left: {
-      name: "Perplexity",
-      bestFor: "Fast source-backed research, market scans, and comparison questions.",
-      tradeoff: "Less complete as an all-purpose creative and coding assistant.",
-      href: "/search?q=Perplexity",
-    },
-    right: {
-      name: "ChatGPT Search",
-      bestFor: "Search inside a broader assistant workflow with drafting, analysis, and tool use.",
-      tradeoff: "Research UX may be less focused than a dedicated answer engine.",
-      href: "/search?q=ChatGPT%20Search",
-    },
-    choices: [
-      { label: "If you value Chinese", pick: "ChatGPT Search or Perplexity", reason: "Test your target language and source set because quality depends on topic." },
-      { label: "If you value price", pick: "Perplexity Free", reason: "It is a strong entry point for source-backed answers." },
-      { label: "If you are a team", pick: "Depends on workflow", reason: "Choose Perplexity for research teams and ChatGPT for general productivity teams." },
-      { label: "If you need API", pick: "Search APIs or model APIs", reason: "Do not assume consumer search products expose the integration you need." },
-    ],
-  },
-];
-
 export function getAlternativesPage(slug: string) {
   return alternativesPages.find((page) => page.slug === slug);
-}
-
-export function getComparisonPage(slug: string) {
-  return comparisonPages.find((page) => page.slug === slug);
 }
