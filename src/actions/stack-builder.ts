@@ -74,7 +74,7 @@ function getConfiguredModel(): unknown {
     process.env.DEFAULT_AI_PROVIDER === "google" &&
     process.env.GOOGLE_GENERATIVE_AI_API_KEY
   ) {
-    return google("gemini-2.0-flash-exp", { structuredOutputs: true });
+    return google("gemini-3.5-flash-lite", { structuredOutputs: true });
   }
 
   if (

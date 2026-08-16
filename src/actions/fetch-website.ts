@@ -225,7 +225,7 @@ export const fetchWebsiteInfoWithAI = async (url: string) => {
 
     let aiModel = null;
     if (process.env.DEFAULT_AI_PROVIDER === "google" && process.env.GOOGLE_GENERATIVE_AI_API_KEY !== undefined) {
-      aiModel = google("gemini-2.0-flash-exp", {
+      aiModel = google("gemini-3.5-flash-lite", {
         structuredOutputs: true,
       });
     } else if (process.env.DEFAULT_AI_PROVIDER === "deepseek" && process.env.DEEPSEEK_API_KEY !== undefined) {

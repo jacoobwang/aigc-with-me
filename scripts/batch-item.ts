@@ -235,7 +235,7 @@ export const fetchItemWithAISdk = async (url: string) => {
     const response = await fetch(url);
     const htmlContent = await response.text();
     const result = await generateObject({
-      model: google("gemini-2.0-flash-exp", {
+      model: google("gemini-3.5-flash-lite", {
         structuredOutputs: true,
       }),
       schema,

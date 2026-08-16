@@ -54,7 +54,7 @@ export const aisdkFetch = async (url: string) => {
     }`;
 
     const { text } = await generateText({
-      model: google("gemini-2.0-flash-exp"),
+      model: google("gemini-3.5-flash-lite"),
       prompt: prompt,
     });
 
@@ -89,7 +89,7 @@ export const aisdkStructure = async (url: string) => {
     const htmlContent = await response.text();
 
     const result = await generateObject({
-      model: google("gemini-2.0-flash-exp", {
+      model: google("gemini-3.5-flash-lite", {
         structuredOutputs: true,
       }),
       schema,
