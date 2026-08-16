@@ -1,4 +1,4 @@
-name: Auto Update Items
+name: Auto Discover and Import Items
 
 on:
   schedule:
@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Auto update items
+      - name: Discover and import items
         env:
           NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
           NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}

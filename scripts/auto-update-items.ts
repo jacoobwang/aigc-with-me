@@ -27,13 +27,21 @@ type AutoUpdateSource = {
 type Candidate = {
   source: AutoUpdateSource;
   sourceUrl: string;
+  sourceLastModified?: string;
   targetUrl?: string;
   discoveredAt: string;
+};
+
+type SitemapEntry = {
+  url: string;
+  kind: "page" | "sitemap";
+  lastModified?: string;
 };
 
 type ExistingItem = {
   _id: string;
   link?: string;
+  sourceUrl?: string;
   slug?: {
     current?: string;
   };
@@ -66,10 +74,17 @@ type CliOptions = {
 
 type RunSummary = {
   discovered: number;
+  selected: number;
   resolved: number;
   skippedExisting: number;
   created: number;
   failed: number;
+};
+
+type DiscoveryResult = {
+  candidates: Candidate[];
+  discovered: number;
+  skippedExisting: number;
 };
 
 const requireEnv = (name: string) => {
@@ -110,7 +125,7 @@ const sources: AutoUpdateSource[] = [
       /\/(category|categories|tag|tags|blog|post|posts|news|pricing|submit|login|signup|about|contact|privacy|terms|search|page)(\/|$|\?)/i,
       /\.(png|jpe?g|gif|webp|svg|pdf|zip|mp4|mp3)(\?|$)/i,
     ],
-    maxCandidates: 25,
+    maxCandidates: 100,
   },
   {
     id: "moge",
@@ -126,7 +141,7 @@ const sources: AutoUpdateSource[] = [
       /\/(category|categories|tag|tags|blog|post|posts|news|pricing|submit|login|signup|about|contact|privacy|terms|search|page)(\/|$|\?)/i,
       /\.(png|jpe?g|gif|webp|svg|pdf|zip|mp4|mp3)(\?|$)/i,
     ],
-    maxCandidates: 25,
+    maxCandidates: 100,
   },
 ];
 
@@ -198,10 +213,48 @@ const isCandidateUrl = (source: AutoUpdateSource, url: string) => {
   );
 };
 
-const extractUrlsFromXml = (xml: string) => {
-  return Array.from(xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)).map((match) =>
-    match[1].trim(),
+const extractSitemapEntries = (xml: string): SitemapEntry[] => {
+  const blocks = Array.from(
+    xml.matchAll(/<(url|sitemap)\b[^>]*>([\s\S]*?)<\/\1>/gi),
   );
+
+  if (blocks.length) {
+    return blocks.reduce<SitemapEntry[]>((entries, [, element, block]) => {
+      const loc = block.match(/<loc>\s*([^<]+?)\s*<\/loc>/i)?.[1]?.trim();
+      const lastModified = block
+        .match(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/i)?.[1]
+        ?.trim();
+      if (loc) {
+        entries.push({
+          url: loc,
+          kind: element.toLowerCase() === "sitemap" ? "sitemap" : "page",
+          ...(lastModified ? { lastModified } : {}),
+        });
+      }
+      return entries;
+    }, []);
+  }
+
+  return Array.from(xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)).map(
+    (match) => ({
+      url: match[1].trim(),
+      kind: /sitemap/i.test(match[1]) ? "sitemap" : "page",
+    }),
+  );
+};
+
+const getLastModifiedTime = (value?: string) => {
+  if (!value) return Number.NEGATIVE_INFINITY;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : Number.NEGATIVE_INFINITY;
+};
+
+const compareSitemapEntries = (left: SitemapEntry, right: SitemapEntry) => {
+  const leftTime = getLastModifiedTime(left.lastModified);
+  const rightTime = getLastModifiedTime(right.lastModified);
+
+  if (leftTime !== rightTime) return rightTime - leftTime;
+  return left.url.localeCompare(right.url);
 };
 
 const extractLinksFromHtml = (html: string, baseUrl: string) => {
@@ -217,26 +270,34 @@ const extractLinksFromHtml = (html: string, baseUrl: string) => {
 };
 
 const discoverFromSitemap = async (source: AutoUpdateSource) => {
-  const urls: string[] = [];
+  const entries: SitemapEntry[] = [];
 
   for (const sitemapUrl of source.sitemapUrls) {
     try {
       const xml = await fetchText(sitemapUrl);
-      const locs = extractUrlsFromXml(xml);
-      const nestedSitemaps = locs.filter((url) => /sitemap/i.test(url));
-      const pageUrls = locs.filter((url) => !/sitemap/i.test(url));
-      urls.push(...pageUrls);
+      const sitemapEntries = extractSitemapEntries(xml);
+      const nestedSitemaps = sitemapEntries.filter(
+        (entry) => entry.kind === "sitemap",
+      );
+      const pageEntries = sitemapEntries.filter(
+        (entry) => entry.kind === "page",
+      );
+      entries.push(...pageEntries);
 
       for (const nested of nestedSitemaps.slice(0, 20)) {
         try {
-          const nestedXml = await fetchText(nested);
-          urls.push(...extractUrlsFromXml(nestedXml));
+          const nestedXml = await fetchText(nested.url);
+          entries.push(
+            ...extractSitemapEntries(nestedXml).filter(
+              (entry) => entry.kind === "page",
+            ),
+          );
         } catch (error) {
           console.warn(
             JSON.stringify({
               level: "warn",
               source: source.id,
-              url: nested,
+              url: nested.url,
               reason: `nested sitemap failed: ${String(error)}`,
             }),
           );
@@ -254,19 +315,20 @@ const discoverFromSitemap = async (source: AutoUpdateSource) => {
     }
   }
 
-  return urls;
+  return entries;
 };
 
 const discoverFromListPages = async (source: AutoUpdateSource) => {
-  const urls: string[] = [];
+  const entries: SitemapEntry[] = [];
 
   for (const listPageUrl of source.listPageUrls) {
     try {
       const html = await fetchText(listPageUrl);
-      urls.push(
+      entries.push(
         ...extractLinksFromHtml(html, listPageUrl)
           .map((link) => link.href)
-          .filter((href): href is string => Boolean(href)),
+          .filter((href): href is string => Boolean(href))
+          .map((url) => ({ url, kind: "page" as const })),
       );
     } catch (error) {
       console.warn(
@@ -280,39 +342,89 @@ const discoverFromListPages = async (source: AutoUpdateSource) => {
     }
   }
 
-  return urls;
+  return entries;
 };
 
-const discoverCandidates = async (selectedSources: AutoUpdateSource[]) => {
+const discoverCandidates = async (
+  selectedSources: AutoUpdateSource[],
+  existingSourceUrls: Set<string>,
+): Promise<DiscoveryResult> => {
   const candidates: Candidate[] = [];
   const seen = new Set<string>();
   const discoveredAt = new Date().toISOString();
+  let discovered = 0;
+  let skippedExisting = 0;
 
   for (const source of selectedSources) {
-    const sitemapUrls = await discoverFromSitemap(source);
-    const rawUrls = sitemapUrls.length
-      ? sitemapUrls
+    const sitemapEntries = await discoverFromSitemap(source);
+    const rawEntries = sitemapEntries.length
+      ? sitemapEntries
       : await discoverFromListPages(source);
+    let sourceCandidateCount = 0;
 
-    for (const rawUrl of rawUrls) {
-      const url = normalizeUrl(rawUrl, source.baseUrl);
+    for (const rawEntry of rawEntries.sort(compareSitemapEntries)) {
+      const url = normalizeUrl(rawEntry.url, source.baseUrl);
       if (!url || !isCandidateUrl(source, url)) continue;
 
       const identity = getUrlIdentity(url);
       if (seen.has(identity)) continue;
       seen.add(identity);
+      discovered++;
+      if (existingSourceUrls.has(identity)) {
+        skippedExisting++;
+        continue;
+      }
 
-      candidates.push({ source, sourceUrl: url, discoveredAt });
-      if (
-        candidates.filter((candidate) => candidate.source.id === source.id)
-          .length >= source.maxCandidates
-      ) {
+      candidates.push({
+        source,
+        sourceUrl: url,
+        sourceLastModified: rawEntry.lastModified,
+        discoveredAt,
+      });
+      sourceCandidateCount++;
+      if (sourceCandidateCount >= source.maxCandidates) {
         break;
       }
     }
   }
 
-  return candidates;
+  return { candidates, discovered, skippedExisting };
+};
+
+const selectCandidatesFairly = (
+  candidates: Candidate[],
+  selectedSources: AutoUpdateSource[],
+  limit: number,
+) => {
+  const buckets = selectedSources.map((source) =>
+    candidates
+      .filter((candidate) => candidate.source.id === source.id)
+      .sort((left, right) =>
+        compareSitemapEntries(
+          {
+            url: left.sourceUrl,
+            kind: "page",
+            lastModified: left.sourceLastModified,
+          },
+          {
+            url: right.sourceUrl,
+            kind: "page",
+            lastModified: right.sourceLastModified,
+          },
+        ),
+      ),
+  );
+  const selected: Candidate[] = [];
+
+  while (selected.length < limit && buckets.some((bucket) => bucket.length)) {
+    for (const bucket of buckets) {
+      const candidate = bucket.shift();
+      if (candidate) selected.push(candidate);
+      if (selected.length >= limit) break;
+    }
+  }
+
+  return selected;
 };
 
 const isLikelyUtilityExternal = (url: URL) => {
@@ -512,7 +624,7 @@ Write original text based on the official website. Do not copy text from aggrega
 
 const getExistingItems = async () => {
   const items = await getClient().fetch<ExistingItem[]>(
-    `*[_type == "item"]{ _id, link, slug }`,
+    `*[_type == "item"]{ _id, link, sourceUrl, slug }`,
   );
   return {
     links: new Set(
@@ -525,6 +637,12 @@ const getExistingItems = async () => {
       items
         .map((item) => item.slug?.current)
         .filter((slug): slug is string => Boolean(slug)),
+    ),
+    sourceUrls: new Set(
+      items
+        .map((item) => item.sourceUrl)
+        .filter((sourceUrl): sourceUrl is string => Boolean(sourceUrl))
+        .map(getUrlIdentity),
     ),
   };
 };
@@ -670,9 +788,10 @@ const writeGithubSummary = async (summary: RunSummary) => {
   await appendFile(
     process.env.GITHUB_STEP_SUMMARY,
     [
-      "## Auto Update Items",
+      "## Auto Discover and Import Items",
       "",
       `- Discovered: ${summary.discovered}`,
+      `- Selected for processing: ${summary.selected}`,
       `- Resolved target URLs: ${summary.resolved}`,
       `- Skipped existing: ${summary.skippedExisting}`,
       `- Created: ${summary.created}`,
@@ -687,21 +806,34 @@ const run = async () => {
   const selectedSources = selectSources(options.sources);
   const summary: RunSummary = {
     discovered: 0,
+    selected: 0,
     resolved: 0,
     skippedExisting: 0,
     created: 0,
     failed: 0,
   };
+  const existing = await getExistingItems();
 
-  const candidates = (await discoverCandidates(selectedSources)).slice(
-    0,
+  const discovery = await discoverCandidates(
+    selectedSources,
+    existing.sourceUrls,
+  );
+  const candidatePool = discovery.candidates;
+  const candidates = selectCandidatesFairly(
+    candidatePool,
+    selectedSources,
     options.limit,
   );
-  summary.discovered = candidates.length;
+  summary.discovered = discovery.discovered;
+  summary.selected = candidates.length;
+  summary.skippedExisting += discovery.skippedExisting;
   console.log(
     JSON.stringify({
       event: "discovered",
-      count: candidates.length,
+      discovered: discovery.discovered,
+      newCandidatePool: candidatePool.length,
+      selected: candidates.length,
+      skippedExistingSourceUrls: discovery.skippedExisting,
       sources: selectedSources.map((source) => source.id),
     }),
   );
@@ -712,6 +844,7 @@ const run = async () => {
         JSON.stringify({
           source: candidate.source.id,
           sourceUrl: candidate.sourceUrl,
+          sourceLastModified: candidate.sourceLastModified,
         }),
       );
     }
@@ -719,10 +852,22 @@ const run = async () => {
     return;
   }
 
-  const existing = await getExistingItems();
-
   for (const candidate of candidates) {
     try {
+      if (existing.sourceUrls.has(getUrlIdentity(candidate.sourceUrl))) {
+        summary.skippedExisting++;
+        console.log(
+          JSON.stringify({
+            event: "skip",
+            source: candidate.source.id,
+            sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
+            reason: "existing_source_url",
+          }),
+        );
+        continue;
+      }
+
       const targetUrl = await resolveTargetUrl(candidate);
       if (!targetUrl) {
         summary.failed++;
@@ -731,6 +876,7 @@ const run = async () => {
             event: "skip",
             source: candidate.source.id,
             sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
             reason: "target_url_not_found",
           }),
         );
@@ -747,6 +893,7 @@ const run = async () => {
             event: "skip",
             source: candidate.source.id,
             sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
             targetUrl,
             reason: "existing_link",
           }),
@@ -768,6 +915,7 @@ const run = async () => {
             event: "skip",
             source: candidate.source.id,
             sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
             targetUrl,
             name: item.name,
             reason: "existing_slug",
@@ -782,6 +930,7 @@ const run = async () => {
             event: "dry_run_ready",
             source: candidate.source.id,
             sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
             targetUrl,
             name: item.name,
             slug,
@@ -793,6 +942,7 @@ const run = async () => {
       const created = await createPendingItem(item, candidate, options.status);
       existing.links.add(getUrlIdentity(item.link));
       existing.slugs.add(slug);
+      existing.sourceUrls.add(getUrlIdentity(candidate.sourceUrl));
       summary.created++;
       console.log(
         JSON.stringify({
@@ -800,6 +950,7 @@ const run = async () => {
           id: created._id,
           source: candidate.source.id,
           sourceUrl: candidate.sourceUrl,
+          sourceLastModified: candidate.sourceLastModified,
           targetUrl,
           name: item.name,
         }),
@@ -811,6 +962,7 @@ const run = async () => {
           event: "failed",
           source: candidate.source.id,
           sourceUrl: candidate.sourceUrl,
+          sourceLastModified: candidate.sourceLastModified,
           reason: String(error),
         }),
       );

@@ -55,18 +55,19 @@ GitHub Actions 工作流 `.github/workflows/auto-update-items.yml:1-69` 每天 U
 
 `scripts/auto-update-items.ts` 的处理过程如下：
 
-- `:98-131` 为 `aiwith.me` 和 `moge.ai` 配置 sitemap、列表页、URL 排除规则和每个来源最多 25 个候选。
-- `:219-315` 优先抓 sitemap，失败或为空时回退到列表页链接，并做 URL 规范化和去重。
+- `:98-140` 为 `aiwith.me` 和 `moge.ai` 配置 sitemap、列表页、URL 排除规则和每个来源最多 100 个新候选；每日实际处理上限仍由 workflow 的 `limit`（默认 20）控制。
+- `:219-335` 优先抓 sitemap，解析 `lastmod` 并按最近修改时间优先；失败或为空时回退到列表页链接，并做 URL 规范化和去重。
 - `:455-510` 同时读取 Sanity 分类/标签、Microlink 数据和目标网站 HTML，再调用 AI 生成标题、描述、介绍、分类和标签；图片使用 Microlink 或 thum.io 截图，图标使用 Google favicon。
-- `:513-529` 读取所有现有 item 的 link 和 slug。
-- `:743-776` 如果目标 link 或生成后的 slug 已存在，直接跳过。
+- `:612-640` 读取所有现有 item 的 `sourceUrl`、link 和 slug；已保存的 `sourceUrl` 会在候选上限计算前排除，因此旧候选不会占满当天的新候选池。
+- `:840-920` 如果目标 link 或生成后的 slug 已存在，直接跳过，兼容历史上没有 `sourceUrl` 的 item。
 - `:552-610` 新建 item 时写入 `publishDate: null`、`freePlanStatus`、`autoImported: true`、`sourceName` 和 `sourceUrl`。
 - `:779-821` dry-run 只报告结果，正常运行才创建 Sanity 文档。
 
-所以这个任务虽然叫 `Auto Update Items`，实际行为是：
+所以这个任务此前虽然叫 `Auto Update Items`，实际行为是：
 
 ```text
-外部目录发现新候选
+外部目录发现新候选（sitemap `lastmod` 优先）
+  → 减去 Sanity 中已保存的 sourceUrl
   → 抓取与 AI 生成
   → 如果 link/slug 已存在则跳过
   → 否则创建未发布、待审核的 item
