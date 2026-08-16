@@ -68,6 +68,7 @@ type CliOptions = {
   command: "discover" | "dry-run" | "import";
   sources: string[];
   limit: number;
+  targetCreated: number | null;
   status: "pending" | "submitting" | "approved";
   dryRun: boolean;
 };
@@ -140,7 +141,8 @@ const sources: AutoUpdateSource[] = [
     excludePatterns: [
       /^https:\/\/moge\.ai\/?$/i,
       /\/(category|categories|tag|tags|blog|post|posts|news|pricing|submit|login|signup|about|contact|privacy|terms|search|page)(\/|$|\?)/i,
-      /^https:\/\/moge\.ai\/aboutme\/?$/i,
+      /\/(aboutme|ai-daily-feeds|best|prompt)(\/|$|\?)/i,
+      /^https:\/\/moge\.ai\/(?:[a-z]{2}(?:-[A-Z]{2})?)\/?$/i,
       /\.(png|jpe?g|gif|webp|svg|pdf|zip|mp4|mp3)(\?|$)/i,
     ],
     maxCandidates: 100,
@@ -741,6 +743,7 @@ const parseArgs = (): CliOptions => {
     command,
     sources: ["all"],
     limit: 20,
+    targetCreated: null,
     status: "pending",
     dryRun: command === "dry-run",
   };
@@ -756,6 +759,9 @@ const parseArgs = (): CliOptions => {
     } else if (token === "--limit") {
       options.limit = Number.parseInt(argv[i + 1] || "20", 10);
       i++;
+    } else if (token === "--target-created") {
+      options.targetCreated = Number.parseInt(argv[i + 1] || "0", 10);
+      i++;
     } else if (token === "--status") {
       options.status = (argv[i + 1] || "pending") as CliOptions["status"];
       i++;
@@ -770,6 +776,12 @@ const parseArgs = (): CliOptions => {
   }
   if (!["pending", "submitting", "approved"].includes(options.status)) {
     throw new Error("Status must be pending, submitting, or approved");
+  }
+  if (
+    options.targetCreated !== null &&
+    (!Number.isInteger(options.targetCreated) || options.targetCreated < 0)
+  ) {
+    throw new Error("Target created must be a non-negative integer");
   }
 
   return options;
@@ -821,10 +833,14 @@ const run = async () => {
     existing.sourceUrls,
   );
   const candidatePool = discovery.candidates;
+  const candidateSelectionLimit =
+    options.targetCreated && options.targetCreated > 0
+      ? Math.max(options.limit, options.targetCreated * 5)
+      : options.limit;
   const candidates = selectCandidatesFairly(
     candidatePool,
     selectedSources,
-    options.limit,
+    candidateSelectionLimit,
   );
   summary.discovered = discovery.discovered;
   summary.selected = candidates.length;
@@ -957,6 +973,12 @@ const run = async () => {
           name: item.name,
         }),
       );
+      if (
+        options.targetCreated !== null &&
+        summary.created >= options.targetCreated
+      ) {
+        break;
+      }
     } catch (error) {
       summary.failed++;
       console.error(

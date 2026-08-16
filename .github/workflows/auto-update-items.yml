@@ -13,6 +13,10 @@ on:
         description: "Maximum candidates to process"
         required: false
         default: "20"
+      target_created:
+        description: "Target number of items to create; 0 keeps candidate limit behavior"
+        required: false
+        default: "0"
       dry_run:
         description: "Run discovery and enrichment without writing to Sanity"
         required: false
@@ -60,10 +64,11 @@ jobs:
         run: |
           SOURCES="${{ github.event.inputs.sources || 'all' }}"
           LIMIT="${{ github.event.inputs.limit || '20' }}"
+          TARGET_CREATED="${{ github.event.inputs.target_created || '0' }}"
           DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
 
           if [ "$DRY_RUN" = "true" ]; then
             pnpm auto-update:dry-run -- --sources "$SOURCES" --limit "$LIMIT"
           else
-            pnpm auto-update:items -- --sources "$SOURCES" --limit "$LIMIT"
+            pnpm auto-update:items -- --sources "$SOURCES" --limit "$LIMIT" --target-created "$TARGET_CREATED"
           fi
