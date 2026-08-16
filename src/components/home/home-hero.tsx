@@ -30,7 +30,7 @@ export default function HomeHero() {
           target="_blank"
           rel="noreferrer"
           aria-label="Sponsored by BeeCrawl"
-          className="inline-flex items-center gap-3 rounded-2xl bg-muted/60 px-5 py-3 text-muted-foreground transition-colors hover:bg-muted sm:px-6 sm:py-4"
+          className="inline-flex items-center gap-3 rounded-2xl bg-muted/60 px-5 py-2 text-muted-foreground transition-colors hover:bg-muted sm:px-6 sm:py-3"
         >
           <AwardIcon
             className="size-6 shrink-0 text-primary"
