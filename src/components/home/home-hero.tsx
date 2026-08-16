@@ -30,15 +30,15 @@ export default function HomeHero() {
           target="_blank"
           rel="noreferrer"
           aria-label="Sponsored by BeeCrawl"
-          className="inline-flex items-center gap-3 rounded-2xl bg-muted/60 px-5 py-2 text-muted-foreground transition-colors hover:bg-muted sm:px-6 sm:py-3"
+          className="inline-flex items-center gap-2 rounded-xl bg-muted/60 px-4 py-1.5 text-muted-foreground transition-colors hover:bg-muted sm:px-5 sm:py-2.5"
         >
           <AwardIcon
-            className="size-6 shrink-0 text-primary"
+            className="size-5 shrink-0 text-primary"
             strokeWidth={2.5}
           />
-          <span className="text-base sm:text-lg">Sponsored by</span>
-          <span className="text-base text-primary sm:text-lg">BeeCrawl</span>
-          <ExternalLinkIcon className="size-4 shrink-0 text-primary sm:size-5" />
+          <span className="text-sm sm:text-base">Sponsored by</span>
+          <span className="text-sm text-primary sm:text-base">BeeCrawl</span>
+          <ExternalLinkIcon className="size-4 shrink-0 text-primary" />
         </Link>
 
         <div className="w-full">
