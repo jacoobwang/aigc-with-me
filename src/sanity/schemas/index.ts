@@ -9,8 +9,6 @@ import category from "./documents/directory/category";
 import collection from "./documents/directory/collection";
 import group from "./documents/directory/group";
 import item from "./documents/directory/item";
-import itemRefreshState from "./documents/directory/item-refresh-state";
-import itemUpdateProposal from "./documents/directory/item-update-proposal";
 import tag from "./documents/directory/tag";
 import order from "./documents/order/order";
 import page from "./documents/page/page";
@@ -19,8 +17,6 @@ import settings from "./documents/settings";
 export const schemaTypes = [
   // directory
   item,
-  itemUpdateProposal,
-  itemRefreshState,
   tag,
   category,
   group,

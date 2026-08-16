@@ -28,8 +28,6 @@
     "item:fetch": "tsx scripts/batch-item.ts fetch",
     "auto-update:items": "tsx scripts/auto-update-items.ts import",
     "auto-update:dry-run": "tsx scripts/auto-update-items.ts dry-run",
-    "refresh-existing-items": "tsx scripts/refresh-existing-items.ts run",
-    "refresh-existing-items:dry-run": "tsx scripts/refresh-existing-items.ts dry-run",
     "batch": "tsx scripts/batch-all.ts",
     "batch:remove": "tsx scripts/batch-all.ts remove",
     "batch:import": "tsx scripts/batch-all.ts import",

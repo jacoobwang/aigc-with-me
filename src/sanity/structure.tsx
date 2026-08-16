@@ -34,7 +34,6 @@ import category from "./schemas/documents/directory/category";
 import collection from "./schemas/documents/directory/collection";
 import group from "./schemas/documents/directory/group";
 import item from "./schemas/documents/directory/item";
-import itemUpdateProposal from "./schemas/documents/directory/item-update-proposal";
 import tag from "./schemas/documents/directory/tag";
 import order from "./schemas/documents/order/order";
 import page from "./schemas/documents/page/page";
@@ -95,13 +94,6 @@ export const structure = (
       item.name,
       ClockIcon,
       '_type == "item" && autoImported == true && pricePlan == "free" && freePlanStatus == "pending"',
-    );
-
-    const pendingItemUpdateProposals = createFilteredListItem(
-      "Pending Item Update Proposals",
-      itemUpdateProposal.name,
-      ClockIcon,
-      '_type == "itemUpdateProposal" && status == "pending"',
     );
 
     const rejectedSubmissionsInFreePlan = createFilteredListItem(
@@ -364,7 +356,6 @@ export const structure = (
             S.list().title("Item management").items([
               allItems,
               autoImportedPendingItems,
-              pendingItemUpdateProposals,
               freePlanItemManagement,
               proPlanItemManagement,
               S.divider(),

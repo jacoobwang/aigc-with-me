@@ -272,76 +272,6 @@ export type Tag = {
   description?: string;
 };
 
-export type ItemRefreshState = {
-  _id: string;
-  _type: "itemRefreshState";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  item?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "item";
-  };
-  lastSourceHash?: string;
-  lastCheckedAt?: string;
-  lastProposal?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "itemUpdateProposal";
-  };
-  lastError?: string;
-};
-
-export type ItemUpdateProposal = {
-  _id: string;
-  _type: "itemUpdateProposal";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  item?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "item";
-  };
-  status?: "pending" | "accepted" | "rejected" | "stale";
-  sourceName?: string;
-  sourceUrl?: string;
-  officialUrl?: string;
-  sourceHash?: string;
-  capturedAt?: string;
-  baseItemUpdatedAt?: string;
-  baseContentHash?: string;
-  currentContent?: {
-    name?: string;
-    link?: string;
-    description?: string;
-    introduction?: string;
-    categories?: Array<string>;
-    tags?: Array<string>;
-    imageUrl?: string;
-    iconUrl?: string;
-  };
-  proposedContent?: {
-    name?: string;
-    link?: string;
-    description?: string;
-    introduction?: string;
-    categories?: Array<string>;
-    tags?: Array<string>;
-    imageUrl?: string;
-    iconUrl?: string;
-  };
-  changedFields?: Array<string>;
-  diffSummary?: Array<string>;
-  reviewNote?: string;
-  reviewedAt?: string;
-  reviewedBy?: string;
-};
-
 export type Item = {
   _id: string;
   _type: "item";
@@ -420,12 +350,6 @@ export type Item = {
     [internalGroqTypeReferenceTo]?: "order";
   };
   forceHidden?: boolean;
-  autoImported?: boolean;
-  sourceName?: string;
-  sourceUrl?: string;
-  discoveredAt?: string;
-  importedAt?: string;
-  importNote?: string;
   sponsor?: boolean;
   sponsorStartDate?: string;
   sponsorEndDate?: string;
@@ -583,7 +507,7 @@ export type Slug = {
   source?: string;
 };
 
-export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | BlockContent | Settings | PasswordResetToken | VerificationToken | Page | BlogCategory | BlogPost | Collection | Category | Group | Tag | ItemRefreshState | ItemUpdateProposal | Item | Order | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | User | Account | Code | Markdown | MediaTag | Slug;
+export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | BlockContent | Settings | PasswordResetToken | VerificationToken | Page | BlogCategory | BlogPost | Collection | Category | Group | Tag | Item | Order | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | User | Account | Code | Markdown | MediaTag | Slug;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: src/sanity/lib/queries.ts
 // Variable: itemByIdQuery
