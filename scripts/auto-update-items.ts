@@ -78,6 +78,7 @@ type RunSummary = {
   selected: number;
   resolved: number;
   skippedExisting: number;
+  skippedDuplicateTargets: number;
   created: number;
   failed: number;
 };
@@ -808,6 +809,7 @@ const writeGithubSummary = async (summary: RunSummary) => {
       `- Selected for processing: ${summary.selected}`,
       `- Resolved target URLs: ${summary.resolved}`,
       `- Skipped existing: ${summary.skippedExisting}`,
+      `- Skipped duplicate targets: ${summary.skippedDuplicateTargets}`,
       `- Created: ${summary.created}`,
       `- Failed: ${summary.failed}`,
       "",
@@ -823,6 +825,7 @@ const run = async () => {
     selected: 0,
     resolved: 0,
     skippedExisting: 0,
+    skippedDuplicateTargets: 0,
     created: 0,
     failed: 0,
   };
@@ -845,6 +848,7 @@ const run = async () => {
   summary.discovered = discovery.discovered;
   summary.selected = candidates.length;
   summary.skippedExisting += discovery.skippedExisting;
+  const seenTargetUrls = new Set<string>();
   console.log(
     JSON.stringify({
       event: "discovered",
@@ -919,6 +923,23 @@ const run = async () => {
         continue;
       }
 
+      const targetIdentity = getUrlIdentity(targetUrl);
+      if (seenTargetUrls.has(targetIdentity)) {
+        summary.skippedDuplicateTargets++;
+        console.log(
+          JSON.stringify({
+            event: "skip",
+            source: candidate.source.id,
+            sourceUrl: candidate.sourceUrl,
+            sourceLastModified: candidate.sourceLastModified,
+            targetUrl,
+            reason: "duplicate_target_in_run",
+          }),
+        );
+        continue;
+      }
+      seenTargetUrls.add(targetIdentity);
+
       const item = await fetchItemInfo(targetUrl);
       if (!item) {
         summary.failed++;
@@ -975,6 +996,7 @@ const run = async () => {
       );
       if (
         options.targetCreated !== null &&
+        options.targetCreated > 0 &&
         summary.created >= options.targetCreated
       ) {
         break;
@@ -995,6 +1017,9 @@ const run = async () => {
 
   console.log(JSON.stringify({ event: "summary", ...summary }));
   await writeGithubSummary(summary);
+  if (summary.failed > 0) {
+    process.exitCode = 1;
+  }
 };
 
 run().catch((error) => {
