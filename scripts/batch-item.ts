@@ -1,6 +1,6 @@
+import { requireQwenModel } from "@/lib/ai-model";
 import { slugify } from "@/lib/utils";
 import type { Category, Tag } from "@/sanity.types";
-import { google } from "@ai-sdk/google";
 import mql from "@microlink/mql";
 import { createClient } from "@sanity/client";
 import { generateObject } from "ai";
@@ -30,7 +30,7 @@ const client = createClient({
  * 
  * Core Functions:
  * 1. Content Scraping: Extract data from URLs using Microlink
- * 2. AI Analysis: Process content using Google's Gemini AI
+ * 2. AI Analysis: Process content using Qwen through DashScope
  * 3. Asset Management: Handle images and icons
  * 4. Database Operations: CRUD operations in Sanity
  * 
@@ -60,7 +60,7 @@ const client = createClient({
  * 
  * Requirements:
  * - Sanity CMS credentials
- * - Google AI SDK access
+ * - DashScope API access
  * - Microlink API access
  * - Environment variables configured
  * 
@@ -235,9 +235,7 @@ export const fetchItemWithAISdk = async (url: string) => {
     const response = await fetch(url);
     const htmlContent = await response.text();
     const result = await generateObject({
-      model: google("gemini-3.5-flash-lite", {
-        structuredOutputs: true,
-      }),
+      model: requireQwenModel(),
       schema,
       prompt: `Analyze the following webpage content and provide structured information:
       

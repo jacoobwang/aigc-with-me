@@ -1,7 +1,7 @@
 import { slugify } from "@/lib/utils";
+import { getQwenModel } from "@/lib/ai-model";
 import type { Category, Tag } from "@/sanity.types";
 import { deepseek } from "@ai-sdk/deepseek";
-import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { xai } from "@ai-sdk/xai";
 import mql from "@microlink/mql";
@@ -518,11 +518,12 @@ const resolveTargetUrl = async (candidate: Candidate) => {
 };
 
 const getAiModel = (): unknown => {
-  if (
-    process.env.DEFAULT_AI_PROVIDER === "google" &&
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY
-  ) {
-    return google("gemini-3.5-flash-lite", { structuredOutputs: true });
+  if (process.env.DEFAULT_AI_PROVIDER === "qwen") {
+    const qwenModel = getQwenModel();
+
+    if (qwenModel) {
+      return qwenModel;
+    }
   }
 
   if (

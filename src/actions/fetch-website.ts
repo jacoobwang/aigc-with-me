@@ -1,10 +1,10 @@
 "use server";
 
+import { getQwenModel } from "@/lib/ai-model";
 import { slugify } from "@/lib/utils";
 import type { Category, Tag } from "@/sanity.types";
 import { sanityClient } from "@/sanity/lib/client";
 import { deepseek } from '@ai-sdk/deepseek';
-import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { xai } from "@ai-sdk/xai";
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
@@ -220,14 +220,11 @@ export const fetchWebsiteInfoWithAI = async (url: string) => {
     const response = await fetch(url);
     // TODO: we need to convert htmlContent to simple content for AI to analyze (save time and cost)
     // TODO: if the content is too long, error will be thrown, so sometimes AI submit will fail
-    // Google Gemini model support more tokens than DeepSeek model, so we prefer Google Gemini model
     const htmlContent = await response.text();
 
     let aiModel = null;
-    if (process.env.DEFAULT_AI_PROVIDER === "google" && process.env.GOOGLE_GENERATIVE_AI_API_KEY !== undefined) {
-      aiModel = google("gemini-3.5-flash-lite", {
-        structuredOutputs: true,
-      });
+    if (process.env.DEFAULT_AI_PROVIDER === "qwen" && process.env.DASHSCOPE_API_KEY) {
+      aiModel = getQwenModel();
     } else if (process.env.DEFAULT_AI_PROVIDER === "deepseek" && process.env.DEEPSEEK_API_KEY !== undefined) {
       aiModel = deepseek("deepseek-chat", {
         // structuredOutputs: true,

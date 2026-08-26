@@ -1,5 +1,5 @@
+import { requireQwenModel } from "@/lib/ai-model";
 import type { Category, Tag } from "@/sanity.types";
-import { google } from "@ai-sdk/google";
 import { createClient } from "@sanity/client";
 import { generateObject, generateText } from "ai";
 import dotenv from "dotenv";
@@ -19,7 +19,7 @@ const client = createClient({
 });
 
 /**
- * AI SDK API Integration (using Google Gemini)
+ * AI SDK API Integration (using Qwen through DashScope)
  *
  * This module provides functions to interact with the AI SDK,
  * allowing you to fetch metadata from a given URL.
@@ -54,7 +54,7 @@ export const aisdkFetch = async (url: string) => {
     }`;
 
     const { text } = await generateText({
-      model: google("gemini-3.5-flash-lite"),
+      model: requireQwenModel(),
       prompt: prompt,
     });
 
@@ -89,9 +89,7 @@ export const aisdkStructure = async (url: string) => {
     const htmlContent = await response.text();
 
     const result = await generateObject({
-      model: google("gemini-3.5-flash-lite", {
-        structuredOutputs: true,
-      }),
+      model: requireQwenModel(),
       schema,
       prompt: `Analyze the following content and provide structured information:
       

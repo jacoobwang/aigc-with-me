@@ -1,5 +1,6 @@
 "use server";
 
+import { getQwenModel } from "@/lib/ai-model";
 import {
   budgetOptions,
   defaultStackBuilderState,
@@ -10,7 +11,6 @@ import {
 } from "@/data/stack-builder";
 import { sanityClient } from "@/sanity/lib/client";
 import { deepseek } from "@ai-sdk/deepseek";
-import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { xai } from "@ai-sdk/xai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -70,11 +70,12 @@ const normalizedOptions = {
 };
 
 function getConfiguredModel(): unknown {
-  if (
-    process.env.DEFAULT_AI_PROVIDER === "google" &&
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY
-  ) {
-    return google("gemini-3.5-flash-lite", { structuredOutputs: true });
+  if (process.env.DEFAULT_AI_PROVIDER === "qwen") {
+    const qwenModel = getQwenModel();
+
+    if (qwenModel) {
+      return qwenModel;
+    }
   }
 
   if (
