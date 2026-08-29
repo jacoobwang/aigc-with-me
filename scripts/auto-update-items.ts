@@ -1,5 +1,6 @@
 import { slugify } from "@/lib/utils";
 import { getQwenModel } from "@/lib/ai-model";
+import { rankTargetLinks } from "@/lib/target-url";
 import type { Category, Tag } from "@/sanity.types";
 import { deepseek } from "@ai-sdk/deepseek";
 import { openai } from "@ai-sdk/openai";
@@ -135,7 +136,6 @@ const sources: AutoUpdateSource[] = [
     baseUrl: "https://moge.ai",
     sitemapUrls: [
       "https://moge.ai/sitemap.xml",
-      "https://moge.ai/sitemap_index.xml",
     ],
     listPageUrls: ["https://moge.ai"],
     includePatterns: [/^https:\/\/moge\.ai\/[^?#]+/i],
@@ -497,22 +497,10 @@ const resolveTargetUrl = async (candidate: Candidate) => {
 
   if (!links.length) return null;
 
-  const scored = links
-    .map((link) => {
-      const haystack = `${link.text} ${link.href}`.toLowerCase();
-      let score = 0;
-      if (
-        /official|website|visit|open|launch|try|get started|start|官网/.test(
-          haystack,
-        )
-      ) {
-        score += 20;
-      }
-      if (/\/out\/|\/go\/|redirect|target=|url=/.test(haystack)) score += 5;
-      if (link.url.pathname === "/" || link.url.pathname === "") score += 3;
-      return { ...link, score };
-    })
-    .sort((a, b) => b.score - a.score);
+  const scored = rankTargetLinks(
+    candidate.sourceUrl,
+    links.map(({ href, text }) => ({ href: href as string, text })),
+  );
 
   return normalizeUrl(scored[0].href as string);
 };
