@@ -146,6 +146,22 @@ OPENROUTER_API_KEY
 OPENROUTER_MODEL
 ```
 
+## 每日内容导入
+
+每天手动执行以下命令，扫描所有来源并将最多 20 个候选内容真实写入生产 Sanity：
+
+```bash
+ENV_FILE=.env.prod pnpm auto-update:items -- --sources all --limit 20
+```
+
+新内容会以 `pending` 状态创建，之后在 Sanity Studio 中审核。`--limit` 表示本次最多检查的候选数量，不代表一定创建相同数量的内容；不传该参数时默认也是 20。
+
+如果需要覆盖本次发现的全部候选，可提高数量：
+
+```bash
+ENV_FILE=.env.prod pnpm auto-update:items -- --sources all --limit 1000
+```
+
 ## 产品功能规划
 
 产品功能规划已拆分到 [PRODUCT_FEATURE_PLAN.md](./PRODUCT_FEATURE_PLAN.md)。
