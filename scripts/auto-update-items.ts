@@ -1007,7 +1007,12 @@ const run = async () => {
   console.log(JSON.stringify({ event: "summary", ...summary }));
   await writeGithubSummary(summary);
   if (summary.failed > 0) {
-    process.exitCode = 1;
+    console.warn(
+      JSON.stringify({
+        event: "warning",
+        message: `${summary.failed} item(s) failed; treating as non-fatal`,
+      }),
+    );
   }
 };
 
